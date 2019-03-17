@@ -1,10 +1,10 @@
 from moviepy.editor import *
 
-video_name='Andratx9_6L.MP4'
+video_name='Andratx9_6L'
 start_time=0 # seconds
 end_time=30 # seconds
 
-myvideo = VideoFileClip(video_name)
+myvideo = VideoFileClip(video_name+'.MP4')
 
 myvideoedited = myvideo.subclip(start_time, end_time)
 

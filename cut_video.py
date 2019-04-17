@@ -1,11 +1,16 @@
 from moviepy.editor import *
+import argparse
 
-video_name='Andratx9_6L'
-start_time=0 # seconds
-end_time=30 # seconds
+parser = argparse.ArgumentParser()
+parser.add_argument('original_video_path', help = "Path of the original video (without final slash)")
+parser.add_argument('final_video_path', help = "Path of the destination video (without final slash)")
+parser.add_argument('video_name', help = "Name of the video (without .MP4)")
+parser.add_argument('initial_second', type=int, help = "Second in the original video where the cut will begin")
+parser.add_argument('final_second', type=int, help = "Second in the original video where the cut will end")
+args = parser.parse_args()
 
-myvideo = VideoFileClip(video_name+'.MP4')
+myvideo = VideoFileClip(args.original_video_path+'/'+args.video_name+'.MP4')
 
-myvideoedited = myvideo.subclip(start_time, end_time)
+myvideoedited = myvideo.subclip(args.initial_second, args.final_second)
 
-myvideoedited.write_videofile(video_name+'_short.mp4',codec='libx264')
+myvideoedited.write_videofile(args.final_video_path+'/'+args.video_name+'_short.mp4', codec='libx264')

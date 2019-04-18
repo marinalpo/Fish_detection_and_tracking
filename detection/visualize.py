@@ -20,6 +20,12 @@ import pickle
 from functools import partial
 assert torch.__version__.split('.')[1] == '4'
 
+"""
+Usage:
+srun --mem 8G --gres=gpu:1,gmem:10G python visualize.py --dataset csv --csv_classes /imatge/ppalau/work/Fishes/classes_mappings.csv 
+--csv_val /imatge/ppalau/work//Fishes/test_image.csv --model /imatge/ppalau/work/Fishes/coco_resnet_50_map_0_335.pt
+"""
+
 print('CUDA available: {}'.format(torch.cuda.is_available()))
 
 
@@ -69,6 +75,12 @@ def main(args=None):
 		with torch.no_grad():
 			st = time.time()
 			scores, classification, transformed_anchors = retinanet(data['img'].cuda().float())
+			print("Scores:")
+			print(scores)
+			print("Classification")
+			print(classification)
+			print("Transformed anchors")
+			print(transformed_anchors)
 			print('Elapsed time: {}'.format(time.time()-st))
 			idxs = np.where(scores>0.5)
 			img = np.array(255 * unnormalize(data['img'][0, :, :, :])).copy()

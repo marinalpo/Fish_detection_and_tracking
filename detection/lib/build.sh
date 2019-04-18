@@ -9,7 +9,8 @@ CUDA_ARCH="-gencode arch=compute_30,code=sm_30 \
 # Build NMS
 cd nms/src/cuda
 echo "Compiling nms kernels by nvcc..."
-/usr/local/cuda/bin/nvcc -c -o nms_kernel.cu.o nms_kernel.cu -x cu -Xcompiler -fPIC $CUDA_ARCH
+# After a crazy search through the server, we have found the cuda path
+/usr/local/opt/cuda-8.0/bin/nvcc -c -o nms_kernel.cu.o nms_kernel.cu -x cu -Xcompiler -fPIC $CUDA_ARCH
 cd ../../
 python build.py
 cd ../

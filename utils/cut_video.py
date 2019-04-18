@@ -14,5 +14,3 @@ myvideo = VideoFileClip(args.original_video_path + '/' + args.video_name + '.mp4
 myvideoedited = myvideo.subclip(args.initial_second, args.final_second)
 # Commit per veure si funciona be el sftp
 myvideoedited.write_videofile(args.final_video_path + '/' + args.video_name + '_short.mp4', codec='libx264')
-
-# Tinc el PyCharm correctament configurat perque es configurin els canvis

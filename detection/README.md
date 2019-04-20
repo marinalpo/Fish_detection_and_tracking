@@ -9,8 +9,11 @@ $source /imatge/ppalau/virtualenvs/fishes_venv/bin/activate
 ### Modules to load
 
 python/3.6.2
+
 cuda/8.0
+
 opencv/3.4.1
+
 cudnn/v6.0
 
 ### Usage

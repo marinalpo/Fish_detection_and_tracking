@@ -1,2 +1,4 @@
-.vscode/sftp.json
-.idea/*
+.vscode/
+.idea/
+detection/__pycache__/
+*.pyc

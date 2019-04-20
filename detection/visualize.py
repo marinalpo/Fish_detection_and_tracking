@@ -83,14 +83,19 @@ def main(args=None):
 			print(transformed_anchors)
 			print('Elapsed time: {}'.format(time.time()-st))
 			idxs = np.where(scores>0.5)
+			print("idxs")
+			print(idxs)
+			# TODO: figure out why plotting the raw bboxes that it gives as output does not work. If we save the image as a .npy and then visualize it is correct, but don't know why
 			img = np.array(255 * unnormalize(data['img'][0, :, :, :])).copy()
-
+			#print("data")
+			#print(data)
 			img[img<0] = 0
 			img[img>255] = 255
 
 			img = np.transpose(img, (1, 2, 0))
 
 			img = cv2.cvtColor(img.astype(np.uint8), cv2.COLOR_BGR2RGB)
+		
 
 			for j in range(idxs[0].shape[0]):
 				bbox = transformed_anchors[idxs[0][j], :]
@@ -103,10 +108,10 @@ def main(args=None):
 
 				cv2.rectangle(img, (x1, y1), (x2, y2), color=(0, 0, 255), thickness=2)
 				print(label_name)
-
-			cv2.imshow('img', img)
-			cv2.waitKey(0)
-
+			np.save('/imatge/ppalau/work/Fishes/output_image', img)
+			# x11 is not supported so we comment the imshow and save the image then plot it in local machine (cutre)
+			#cv2.imshow('img', img)
+			#cv2.waitKey(0)
 
 
 if __name__ == '__main__':

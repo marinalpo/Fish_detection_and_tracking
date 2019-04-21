@@ -82,7 +82,8 @@ def main(args=None):
 			print("Transformed anchors")
 			print(transformed_anchors)
 			print('Elapsed time: {}'.format(time.time()-st))
-			idxs = np.where(scores>0.5)
+			# This low threshold is to check the feature proposal network (resnet)
+			idxs = np.where(scores>0.01)
 			print("idxs")
 			print(idxs)
 			# TODO: figure out why plotting the raw bboxes that it gives as output does not work. If we save the image as a .npy and then visualize it is correct, but don't know why

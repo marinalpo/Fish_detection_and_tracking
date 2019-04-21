@@ -9,7 +9,7 @@ import losses
 from lib.nms.pth_nms import pth_nms
 
 def nms(dets, thresh):
-    "Dispatch to either CPU or GPU NMS implementations.\
+    """Dispatch to either CPU or GPU NMS implementations.\
     Accept dets as tensor"""
     return pth_nms(dets, thresh)
 
@@ -113,7 +113,8 @@ class RegressionModel(nn.Module):
 class ClassificationModel(nn.Module):
     def __init__(self, num_features_in, num_anchors=9, num_classes=80, prior=0.01, feature_size=256):
         super(ClassificationModel, self).__init__()
-
+        
+        # The number of classes is 80 because coco dataset has 80 categories, I think we should change this to 3: other, fish, and serranus
         self.num_classes = num_classes
         self.num_anchors = num_anchors
         
@@ -157,6 +158,7 @@ class ClassificationModel(nn.Module):
         out2 = out1.view(batch_size, width, height, self.num_anchors, self.num_classes)
 
         return out2.contiguous().view(x.shape[0], -1, self.num_classes)
+
 
 class ResNet(nn.Module):
 
@@ -230,6 +232,14 @@ class ResNet(nn.Module):
         for layer in self.modules():
             if isinstance(layer, nn.BatchNorm2d):
                 layer.eval()
+    
+    def extract_feature(self, layer):
+        """
+        Feature extraction for transfer learning
+        Doer: MARINA (https://becominghuman.ai/extract-a-feature-vector-for-any-image-with-pytorch-9717561d1d4c )
+        """
+        print("")
+        
 
     def forward(self, inputs):
 

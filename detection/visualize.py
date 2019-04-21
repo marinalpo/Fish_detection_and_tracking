@@ -95,7 +95,6 @@ def main(args=None):
 			img = np.transpose(img, (1, 2, 0))
 
 			img = cv2.cvtColor(img.astype(np.uint8), cv2.COLOR_BGR2RGB)
-		
 
 			for j in range(idxs[0].shape[0]):
 				bbox = transformed_anchors[idxs[0][j], :]

@@ -15,7 +15,8 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import datasets, models, transforms
 
 from dataloader import CocoDataset, CSVDataset, collater, Resizer, AspectRatioBasedSampler, Augmenter, UnNormalizer, Normalizer
-
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 import pickle
 from functools import partial
 assert torch.__version__.split('.')[1] == '4'
@@ -54,14 +55,15 @@ def main(args=None):
 	pickle.load = partial(pickle.load, encoding="latin1")
 	pickle.Unpickler = partial(pickle.Unpickler, encoding="latin1")
 	retinanet = torch.load(parser.model, pickle_module=pickle)
-
+	# Print model to see what resnet backbone uses
+	print(retinanet)
 	use_gpu = True
 
 	if use_gpu:
 		retinanet = retinanet.cuda()
 
 	retinanet.eval()
-
+	
 	unnormalize = UnNormalizer()
 
 	def draw_caption(image, box, caption):
@@ -83,7 +85,7 @@ def main(args=None):
 			print(transformed_anchors)
 			print('Elapsed time: {}'.format(time.time()-st))
 			# This low threshold is to check the feature proposal network (resnet)
-			idxs = np.where(scores>0.01)
+			idxs = np.where(scores>0.1)
 			print("idxs")
 			print(idxs)
 			# TODO: figure out why plotting the raw bboxes that it gives as output does not work. If we save the image as a .npy and then visualize it is correct, but don't know why

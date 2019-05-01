@@ -1,68 +1,44 @@
 import numpy as np
 import cv2
-import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument('video_path')
-args = parser.parse_args()
+alpha = 0.25  # Learning Factor [0,1] - Higher if background moves
+
 
 class BackGroundSubtractor:
 
-	# 1) alpha: The background learning factor, its value should be between 0 and 1. The higher the value, the more quickly
-	# your program learns the changes in the background. Therefore, for a static background use a lower value, like 0.001. But if 
-	# your background has moving trees and stuff, use a higher value, maybe start with 0.01.
-	# 2) firstFrame: This is the first frame from the video/webcam.
-	def __init__(self,alpha,firstFrame):
-		self.alpha  = alpha
+	def __init__(self, alpha, firstFrame):
+		self.alpha = alpha
 		self.backGroundModel = firstFrame
 
-	def getForeground(self,frame):
-		# apply the background averaging formula:
-		self.backGroundModel =  frame * self.alpha + self.backGroundModel * (1 - self.alpha)
+	def getForeground(self, frame):
+		self.backGroundModel = frame * self.alpha + self.backGroundModel * (1 - self.alpha)
+		return cv2.absdiff(self.backGroundModel.astype(np.uint8), frame)
 
-		# after the previous operation, the dtype of
-		# self.backGroundModel will be changed to a float type
-		# therefore we do not pass it to cv2.absdiff directly,
-		# instead we acquire a copy of it in the uint8 dtype
-		# and pass that to absdiff.
+# cam = cv2.VideoCapture('/Users/marinaalonsopoal/Desktop/Video_test.mp4')
+cam = cv2.VideoCapture('/Users/marinaalonsopoal/Documents/Telecos/Master/Research/Videos/Original/Andratx8_6L.MP4')
 
-		return cv2.absdiff(self.backGroundModel.astype(np.uint8),frame)
 
-cam = cv2.VideoCapture(args.video_path)
-
-# Just a simple function to perform
-# some filtering before any further processing.
 def denoise(frame):
-    frame = cv2.medianBlur(frame,5)
-    frame = cv2.GaussianBlur(frame,(5,5),0)
-    
-    return frame
+	frame = cv2.medianBlur(frame, 5)
+	frame = cv2.GaussianBlur(frame, (5, 5), 0)
+	return frame
 
-ret,frame = cam.read()
+
+ret, frame = cam.read()
+
 if ret is True:
-	backSubtractor = BackGroundSubtractor(0.2,denoise(frame))
+	backSubtractor = BackGroundSubtractor(alpha, denoise(frame))
 	run = True
 else:
 	run = False
 
-while(run):
-	# Read a frame from the camera
-	ret,frame = cam.read()
-
-	# If the frame was properly read.
+while run:
+	ret, frame = cam.read()
 	if ret is True:
-		# Show the filtered image
 		cv2.imshow('input',frame)
-		# get the foreground
 		foreGround = backSubtractor.getForeground(denoise(frame))
-
-		# Apply thresholding on the background and display the resulting mask
 		ret, mask = cv2.threshold(foreGround, 15, 255, cv2.THRESH_BINARY)
-
-		# Note: The mask is displayed as a RGB image, you can display a grayscale image by converting 'foreGround' to
-		# a grayscale before applying the threshold.
-		cv2.imshow('mask',mask)
-
+		cv2.imshow('mask', mask)
 		key = cv2.waitKey(10) & 0xFF
 	else:
 		break

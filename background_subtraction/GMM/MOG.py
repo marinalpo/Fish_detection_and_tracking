@@ -27,7 +27,7 @@ while 1:
     fgmask = fgbg.apply(frame)
     cv2.imshow('frame', fgmask)
 
-    if capture == 1 and num_frame == 160:
+    if capture == 1 and num_frame == 60:
         cv2.imwrite('/Users/marinaalonsopoal/Desktop/Original_Frame_' + str(num_frame) + '.jpg', original_frame)
         cv2.imwrite('/Users/marinaalonsopoal/Desktop/Back_Frame_' + str(num_frame) + '.jpg', fgmask)
 

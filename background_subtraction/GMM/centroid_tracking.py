@@ -1,40 +1,42 @@
 import matplotlib.image as mpimg
 import cv2
-import skimage.morphology as morph
 import numpy as np
 from Display_Images import *
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 
 
-def process_back(back):
-    ret, binary = cv2.threshold(back, 127, 255, cv2.THRESH_BINARY)
-    # Step 1: Reconstruction with Opening
-    kernel = morph.disk(8)
-    ope = morph.binary_opening(binary, kernel)
-    rec = morph.reconstruction(ope, binary)
-    # Step 2: Dual Reconstruction with Frame Marker
-    mark = 0 * np.copy(back) + 255
-    size = back.shape
-    mark[1, :] = 0
-    mark[:, 1] = 0
-    mark[size[0] - 1, :] = 0
-    mark[:, size[1] - 1] = 0
-    mark = 255 - mark
-    rec2 = 255 - rec
-    durec = morph.reconstruction(mark, rec2)
-    durec = 255 - durec
-    # Step 3: Simple Closing to perfectionate the filling
-    kernel = morph.disk(10)
-    clos = morph.binary_closing(durec, kernel)
-    hull = morph.convex_hull_object(clos)
-    return hull
+def getCentroids(ima):
+    ret, thresh = cv2.threshold(ima, 127, 255, 0)
+    contours, hierarchy = cv2.findContours(thresh, 1, 2)
+    centroids = np.zeros([len(contours), 2])
+    boxes = np.zeros([len(contours), 4])  # x, y, w, h
+    i = 0  # TODO: Delete i and make it with c
+    for c in contours:
+        M = cv2.moments(c)
+        centroids[i, 0] = int(M["m10"] / M["m00"])
+        centroids[i, 1] = int(M["m01"] / M["m00"])
+        boxes[i, :] = cv2.boundingRect(c)
+        i = i + 1
+    return centroids, boxes
+
 
 num_frame1 = 145
-num_frame2 = 160
+ori1 = mpimg.imread('/Users/marinaalonsopoal/Desktop/Original_Frame_' + str(num_frame1) + '.jpg')
+hull1 = mpimg.imread('/Users/marinaalonsopoal/Desktop/Hull_Frame_' + str(num_frame1) + '.jpg')
 
-back1 = mpimg.imread('/Users/marinaalonsopoal/Desktop/Back_Frame_' + str(num_frame1) + '.jpg')
-back2 = mpimg.imread('/Users/marinaalonsopoal/Desktop/Back_Frame_' + str(num_frame2) + '.jpg')
+centroids1, boxes1 = getCentroids(hull1)
 
-hull1 = process_back(back1)
-hull2 = process_back(back2)
 
-Display_4_Images(back1, hull1, back2, hull2, 'Background Frame #' + str(num_frame1), 'Polygons Frame #'+ str(num_frame1), 'Background Frame #' + str(num_frame2), 'Polygons Frame #' + str(num_frame2))
+f, axarr = plt.subplots(2, 1)
+axarr[0].imshow(ori1, cmap='Greys_r')
+axarr[0].title.set_text('Original Frame #145')
+for i in range(len(boxes1)):
+    rect = patches.Rectangle((boxes1[i,0], boxes1[i,1]),boxes1[i,2],boxes1[i,3],linewidth=2,edgecolor='r',facecolor='none')
+    axarr[0].add_patch(rect)
+
+axarr[1].imshow(hull1, cmap='Greys_r')
+for i in range(len(boxes1)):
+    axarr[1].scatter(centroids1[i,0], centroids1[i,1], color='r')
+axarr[1].title.set_text('Centroids Frame #145')
+plt.show()

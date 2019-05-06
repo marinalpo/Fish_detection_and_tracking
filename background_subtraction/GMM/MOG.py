@@ -11,10 +11,9 @@ sigma = 0  # Noise strength (standard deviation of the brightness on each color 
 
 fgbg = cv2.bgsegm.createBackgroundSubtractorMOG(history=hist, nmixtures=mixt, backgroundRatio=ratio, noiseSigma=sigma)
 
-num_frame = 0
-capture = 1
+num_frame = 250
 
-while 1:
+while num_frame <= 301:
     num_frame = num_frame + 1
     ret, original_frame = cap.read()
     cv2.imshow('Original Video', original_frame)
@@ -25,11 +24,10 @@ while 1:
 
     # Background Subtraction
     fgmask = fgbg.apply(frame)
-    cv2.imshow('frame', fgmask)
+    cv2.imshow('Background', fgmask)
 
-    if capture == 1 and num_frame == 60:
-        cv2.imwrite('/Users/marinaalonsopoal/Desktop/Original_Frame_' + str(num_frame) + '.jpg', original_frame)
-        cv2.imwrite('/Users/marinaalonsopoal/Desktop/Back_Frame_' + str(num_frame) + '.jpg', fgmask)
+    cv2.imwrite('/Users/marinaalonsopoal/Desktop/Originals/Original_Frame_' + str(num_frame) + '.jpg', original_frame)
+    cv2.imwrite('/Users/marinaalonsopoal/Desktop/Backgrounds/Background_Frame_' + str(num_frame) + '.jpg', fgmask)
 
     k = cv2.waitKey(30) & 0xff
     if k == 27:

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 
-def Display_Image(ima, name):
+def Display_Image(ima, name='Image'):
     f, axarr = plt.subplots(1, 1)
     # plt.suptitle(suptitle)
     axarr.imshow(ima, cmap='Greys_r')
@@ -9,7 +9,7 @@ def Display_Image(ima, name):
     plt.show()
 
 
-def Display_2_Images(ima1, ima2, name1, name2):
+def Display_2_Images(ima1, ima2, name1='Image 1', name2='Image 2'):
     f, axarr = plt.subplots(2, 1)
     # plt.suptitle(suptitle)
     axarr[0].imshow(ima1, cmap='Greys_r')
@@ -19,7 +19,7 @@ def Display_2_Images(ima1, ima2, name1, name2):
     plt.show()
 
 
-def Display_4_Images(ima1, ima2, ima3, ima4, name1, name2, name3, name4):
+def Display_4_Images(ima1, ima2, ima3, ima4, name1='Image 1', name2='Image 2', name3='Image 3', name4='Image 4'):
     f, axarr = plt.subplots(2, 2)
     # plt.suptitle(suptitle)
     axarr[0, 0].imshow(ima1, cmap='Greys_r')
@@ -33,9 +33,9 @@ def Display_4_Images(ima1, ima2, ima3, ima4, name1, name2, name3, name4):
     plt.show()
 
 
-def Display_6_Images(ima1, ima2, ima3, ima4, ima5, ima6, name1, name2, name3, name4, name5, name6):
+def Display_6_Images(ima1, ima2, ima3, ima4, ima5, ima6, name1 = 'Image 1', name2='Image 2', name3='Image 3', name4='Image 4', name5='Image 5', name6='Image 6', super=''):
     f, axarr = plt.subplots(2, 3)
-    # plt.suptitle(suptitle)
+    plt.suptitle(super)
     axarr[0, 0].imshow(ima1, cmap='Greys_r')
     axarr[0, 0].title.set_text(name1)
     axarr[0, 1].imshow(ima2, cmap='Greys_r')

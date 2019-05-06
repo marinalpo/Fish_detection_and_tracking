@@ -3,7 +3,6 @@ import cv2
 import skimage.morphology as morph
 from Display_Images import *
 
-
 def processBackground(back):
 
     ret, binary = cv2.threshold(back, 127, 255, cv2.THRESH_BINARY)
@@ -14,12 +13,12 @@ def processBackground(back):
     rec = rec.astype('uint8')
 
     # Step 2: Closing to connect components
-    kernel2 = morph.disk(10)
+    kernel2 = morph.disk(20)
     clos = 255 * morph.binary_closing(rec, kernel2)
     clos = clos.astype('uint8')
 
     # Step 3: Reconstruction with Opening to remove little objects
-    kernel3 = morph.disk(4)
+    kernel3 = morph.disk(5)
     ope2 = morph.binary_opening(clos, kernel3)
     ope2 = 255 * ope2
     ope2 = ope2.astype('uint8')
@@ -33,11 +32,12 @@ def processBackground(back):
 
     return hull
 
-num_frame = 50
-original = mpimg.imread('/Users/marinaalonsopoal/Desktop/Original_Frame_' + str(num_frame) + '.jpg')
-back = mpimg.imread('/Users/marinaalonsopoal/Desktop/Back_Frame_' + str(num_frame) + '.jpg')
 
-hull = processBackground(back)
+num_frame = 1
 
-cv2.imwrite('/Users/marinaalonsopoal/Desktop/Hull_Frame_' + str(num_frame) + '.jpg', hull)
-Display_2_Images(original, hull, 'Original', 'Hull')
+while num_frame <= 301:
+    back = mpimg.imread('/Users/marinaalonsopoal/Desktop/Backgrounds/Background_Frame_' + str(num_frame) + '.jpg')
+    hull = processBackground(back)
+    cv2.imwrite('/Users/marinaalonsopoal/Desktop/Hulls/Hull_Frame_' + str(num_frame) + '.jpg', hull)
+    print('Printed frame ', num_frame)
+    num_frame += 1

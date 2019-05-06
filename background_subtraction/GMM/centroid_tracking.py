@@ -5,7 +5,6 @@ from Display_Images import *
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
-
 def getCentroids(ima):
     ret, thresh = cv2.threshold(ima, 127, 255, 0)
     contours, hierarchy = cv2.findContours(thresh, 1, 2)
@@ -17,26 +16,32 @@ def getCentroids(ima):
         centroids[i, 0] = int(M["m10"] / M["m00"])
         centroids[i, 1] = int(M["m01"] / M["m00"])
         boxes[i, :] = cv2.boundingRect(c)
+        boxes[i, 2] = boxes[i, 0] + boxes[i, 2]
+        boxes[i, 3] = boxes[i, 1] + boxes[i, 3]
+        # now startX, startY, endX, endY
         i = i + 1
     return centroids, boxes
 
 
-num_frame1 = 145
-ori1 = mpimg.imread('/Users/marinaalonsopoal/Desktop/Original_Frame_' + str(num_frame1) + '.jpg')
-hull1 = mpimg.imread('/Users/marinaalonsopoal/Desktop/Hull_Frame_' + str(num_frame1) + '.jpg')
+def plotCentroids(ori, hull, centroids, boxes, num_frame):
+    font = cv2.FONT_HERSHEY_DUPLEX
+    for i in range(len(boxes)):
+        boxes = boxes.astype(np.int64)
+        cv2.rectangle(ori, (boxes[i,0], boxes[i,1]), (boxes[i,2], boxes[i,3]), (0, 0, 255), 5)
+        cv2.putText(ori, 'Id ' + str(i), (boxes[i, 0], boxes[i, 1]-10), font, 1, (0, 0, 255), 2, cv2.LINE_AA)
+    cv2.putText(ori, 'Andratx8_6L: Frame #' + str(num_frame), (10, 25), font, 1, (0, 0, 0), 2, cv2.LINE_AA)
+    cv2.imshow('Object Tracking', ori)
+    cv2.waitKey(1)
 
-centroids1, boxes1 = getCentroids(hull1)
 
-
-f, axarr = plt.subplots(2, 1)
-axarr[0].imshow(ori1, cmap='Greys_r')
-axarr[0].title.set_text('Original Frame #145')
-for i in range(len(boxes1)):
-    rect = patches.Rectangle((boxes1[i,0], boxes1[i,1]),boxes1[i,2],boxes1[i,3],linewidth=2,edgecolor='r',facecolor='none')
-    axarr[0].add_patch(rect)
-
-axarr[1].imshow(hull1, cmap='Greys_r')
-for i in range(len(boxes1)):
-    axarr[1].scatter(centroids1[i,0], centroids1[i,1], color='r')
-axarr[1].title.set_text('Centroids Frame #145')
-plt.show()
+# num_frame = 1
+#
+# while num_frame <= 300:
+#     ori = mpimg.imread('/Users/marinaalonsopoal/Desktop/Originals/Original_Frame_' + str(num_frame) + '.jpg', cv2.IMREAD_COLOR)
+#     hull = mpimg.imread('/Users/marinaalonsopoal/Desktop/Hulls/Hull_Frame_' + str(num_frame) + '.jpg')
+#     centroids, boxes = getCentroids(hull)
+#     ori = cv2.cvtColor(ori, cv2.COLOR_BGR2RGB)
+#     plotCentroids(ori, hull, centroids, boxes, num_frame)
+#     num_frame = num_frame + 1
+#
+# cv2.destroyAllWindows()

@@ -5,11 +5,11 @@ annotation file. Create a new annotation/interpolation file
 including the result of the tracking.
 Optional arguments can be alternatively configured in the python program.
 
-Usage: vid2pics (-a | -t)[-i <images directory>][-x <xml file>]
+Usage: xmlTrack.py (-a | -t)[-i <images directory>][-x <xml file>]
                 [-o <output xml>][-r <re3 directory>][-g] 
  
 Options:
- -i=<images directory> --images  Path to the input video
+ -i=<images directory> --images  Path to the image directory
  -x=<xml file> --xml  Path to an annotation xml
  -o=<output xml> --output  Path to the output xml file
  -a --annotation  Output in the cvat annotation format
@@ -32,7 +32,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 re3dir = "/home/utilisateur/builds/Re3/"
 imageDir = "/home/utilisateur/Desktop/CalaEgos7LTest/slice1/"
 imgFormat = ".jpg"
-xmlFile = "7_xmlTrackTest.xml"
+xmlFile = "7_xmlTrackTest (2).xml"
 xmlPath = os.path.join(basedir, xmlFile)
 newXmlFile = "trackedAnnotation.xml"
 newXmlPath = os.path.join(basedir, newXmlFile)
@@ -262,7 +262,7 @@ def main(re3dir, imageDir, imgFormat, xmlPath, newXmlPath):
         imagePaths = sorted(glob.glob(os.path.join(imageDir, '*'+imgFormat)))
     #Load the xml annotation file
     if arguments['--xml']:
-        xmlPath = arguments['xml']
+        xmlPath = arguments['--xml']
     print("Parsing the xml file %s..."%xmlPath, end='')
     xmlParse = ET.parse(xmlPath).getroot()
     print("[Done]")

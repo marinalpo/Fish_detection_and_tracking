@@ -1,22 +1,21 @@
-from Tracking import *
-from centroid_tracking import *
+from fishutils import *
 import matplotlib.image as mpimg
-import numpy as np
-from imutils.video import VideoStream
-import imutils
 import cv2
-import time
-colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 0, 255), (255, 255, 0), (0, 255, 255), (255, 140, 0), (0, 128, 0),
-          (138, 43, 226), (210, 205, 30), (255, 192, 203), (259, 69, 0), (0, 0, 0), (255, 255, 255), (0, 0, 255), (255, 0, 0),
-          (0, 255, 0), (0, 0, 255), (255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 0, 0), (0, 255, 0), (0, 0, 255)]
 
 ct = CentroidTracker()
 (H, W) = (None, None)
 
-num_frame = 75
-while num_frame <= 250:
-    ori = mpimg.imread('/Users/marinaalonsopoal/Desktop/Originals/Original_Frame_' + str(num_frame) + '.jpg', cv2.IMREAD_COLOR)
-    hull = mpimg.imread('/Users/marinaalonsopoal/Desktop/Hulls/Hull_Frame_' + str(num_frame) + '.jpg')
+video = ['Andratx8_6L', 'Andratx9_6L', 'CalaEgos5L']
+num_video = 1
+
+dir_name = '/Users/marinaalonsopoal/Documents/Telecos/Master/Research/Videos/'+video[num_video]+'/'
+
+num_frame = 1
+last_frame = 300
+
+while num_frame <= last_frame:
+    ori = mpimg.imread(dir_name + 'Originals/Original_Frame_' + str(num_frame) + '.jpg')
+    hull = mpimg.imread(dir_name + 'Hulls/Hull_Frame_' + str(num_frame) + '.jpg')
     centroids, boxes = getCentroids(hull)
     rects = []
 
@@ -28,7 +27,6 @@ while num_frame <= 250:
 
     objects = ct.update(rects)
 
-
     for (objectID, centroid) in objects.items():
         text = "FISH {}".format(objectID)
         cv2.putText(ori, text, (centroid[0]-10, centroid[1]-10),
@@ -39,7 +37,7 @@ while num_frame <= 250:
     ori = cv2.cvtColor(ori, cv2.COLOR_BGR2RGB)
     cv2.imshow("Frame", ori)
 
-    key = cv2.waitKey(1) & 0xFF
+    key = cv2.waitKey(10) & 0xFF
     num_frame += 1
 
 cv2.destroyAllWindows()

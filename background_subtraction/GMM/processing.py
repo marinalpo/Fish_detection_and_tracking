@@ -1,4 +1,3 @@
-import matplotlib.image as mpimg
 import cv2
 import skimage.morphology as morph
 from Display_Images import *
@@ -31,13 +30,3 @@ def processBackground(back):
     hull = hull.astype('uint8')
 
     return hull
-
-
-num_frame = 1
-
-while num_frame <= 301:
-    back = mpimg.imread('/Users/marinaalonsopoal/Desktop/Backgrounds/Background_Frame_' + str(num_frame) + '.jpg')
-    hull = processBackground(back)
-    cv2.imwrite('/Users/marinaalonsopoal/Desktop/Hulls/Hull_Frame_' + str(num_frame) + '.jpg', hull)
-    print('Printed frame ', num_frame)
-    num_frame += 1

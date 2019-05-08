@@ -1,9 +1,13 @@
-import numpy as np
 import cv2
+from processing import *
 
-cap = cv2.VideoCapture('/Users/marinaalonsopoal/Documents/Telecos/Master/Research/Videos/Original/Andratx8_6L.MP4')
+video = ['Andratx8_6L', 'Andratx9_6L', 'CalaEgos5L']
+num_video = 2
 
-# PARAMETERS
+dir_name = '/Users/marinaalonsopoal/Documents/Telecos/Master/Research/Videos/'+video[num_video]+'/'
+cap = cv2.VideoCapture(dir_name + video[num_video] + '.mp4')
+
+# Mixture of Gaussians parameters
 hist = 200  # Length of the history
 mixt = 5  # Number of Gaussian Mixtures (from 3 to 5)
 ratio = 0.7  # Background Ratio
@@ -11,27 +15,28 @@ sigma = 0  # Noise strength (standard deviation of the brightness on each color 
 
 fgbg = cv2.bgsegm.createBackgroundSubtractorMOG(history=hist, nmixtures=mixt, backgroundRatio=ratio, noiseSigma=sigma)
 
-num_frame = 250
+num_frame = 2
+last_frame = 300
 
-while num_frame <= 301:
-    num_frame = num_frame + 1
-    ret, original_frame = cap.read()
-    cv2.imshow('Original Video', original_frame)
+while num_frame <= last_frame:
+    ret, original = cap.read()
 
     # Pre - processing
-    frame = cv2.medianBlur(original_frame, 5)
+    frame = cv2.medianBlur(original, 5)
     frame = cv2.GaussianBlur(frame, (5, 5), 0)
 
     # Background Subtraction
-    fgmask = fgbg.apply(frame)
-    cv2.imshow('Background', fgmask)
+    back = fgbg.apply(frame)
 
-    cv2.imwrite('/Users/marinaalonsopoal/Desktop/Originals/Original_Frame_' + str(num_frame) + '.jpg', original_frame)
-    cv2.imwrite('/Users/marinaalonsopoal/Desktop/Backgrounds/Background_Frame_' + str(num_frame) + '.jpg', fgmask)
+    # Morphological Filters
+    # hull = processBackground(back)
 
-    k = cv2.waitKey(30) & 0xff
-    if k == 27:
-        break
+    # Save image files
+    cv2.imwrite(dir_name + 'Originals/Original_Frame_' + str(num_frame) + '.jpg', original)
+    cv2.imwrite(dir_name + 'Backgrounds/Background_Frame_' + str(num_frame) + '.jpg', back)
+    # cv2.imwrite(dir_name + 'Hulls/Hull_Frame_' + str(num_frame) + '.jpg', hull)
+
+    print('Processed Frame #' + str(num_frame))
+    num_frame = num_frame + 1
 
 cap.release()
-cv2.destroyAllWindows()

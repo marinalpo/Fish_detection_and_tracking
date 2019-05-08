@@ -6,7 +6,7 @@ import matplotlib.image as mpimg
 video = ['Andratx8_6L', 'Andratx9_6L', 'CalaEgos5L']
 num_video = 0
 dir_name = '/Users/marinaalonsopoal/Documents/Telecos/Master/Research/Videos/'+video[num_video]+'/'
-num_frame = 250
+num_frame = 254
 
 ori = mpimg.imread(dir_name + 'Originals/Original_Frame_' + str(num_frame) + '.jpg')
 back = mpimg.imread(dir_name + 'Backgrounds/Background_Frame_' + str(num_frame) + '.jpg')

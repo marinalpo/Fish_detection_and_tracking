@@ -65,11 +65,16 @@ def main(args=None):
 
     pickle.load = partial(pickle.load, encoding="latin1")
     pickle.Unpickler = partial(pickle.Unpickler, encoding="latin1")
+    # Load pretrained model
     retinanet = torch.load(args.model, pickle_module=pickle)
 
+    # Print the model
+    print(model)
+    
     if(learning_mode == LearningMode.FINETUNING):
         # Begin with pretrained model and train it all
         print("Model load correctly, finetuning selcted")
+
     elif(learning_mode == LearningMode.FEATURE_EXTRACTOR):
         # Freeze some layers (and networks, for example ResNet and FPN) and train the rest 
         print("Model load correctly, feature extraction selected")

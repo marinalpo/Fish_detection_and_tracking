@@ -5,7 +5,6 @@ from scipy.spatial import distance as dist
 from collections import OrderedDict
 
 #  Reference: https://www.pyimagesearch.com/2018/07/23/simple-object-tracking-with-opencv/
-
 class CentroidTracker():
     def __init__(self, maxDisappeared = 15):
         self.nextObjectID = 0  # counter used to assign unique IDs to each object
@@ -70,6 +69,21 @@ class CentroidTracker():
                 for col in unusedCols:
                     self.register(inputCentroids[col])
         return self.objects
+
+#  Reference: PyImageSearch
+class TrackableObject:
+    def __init__(self, objectID, centroid, startFrame):
+        # store the object ID, then initialize a list of centroids
+        # using the current centroid
+        self.objectID = objectID
+        self.centroids = [centroid]
+
+        # initialize a boolean used to indicate if the object has
+        # already been counted or not
+        self.counted = False
+
+        self.startFrame = startFrame
+        self.endFrame = startFrame
 
 
 def processBackground(back):

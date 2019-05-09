@@ -6,7 +6,7 @@ ct = CentroidTracker()
 (H, W) = (None, None)
 
 video = ['Andratx8_6L', 'Andratx9_6L', 'CalaEgos5L']
-num_video = 1
+num_video = 0
 
 dir_name = '/Users/marinaalonsopoal/Documents/Telecos/Master/Research/Videos/'+video[num_video]+'/'
 

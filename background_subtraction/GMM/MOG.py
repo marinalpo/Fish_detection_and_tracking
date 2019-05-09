@@ -19,7 +19,7 @@ display = False
 display_speed = [0, 20, 100]
 capture = True
 num_frame = 1
-last_frame = 2
+last_frame = 100
 
 while num_frame <= last_frame:
     ret, original = cap.read()

@@ -29,7 +29,7 @@ import xml.etree.ElementTree as ET
 
 #Paths to configure
 basedir = os.path.abspath(os.path.dirname(__file__))
-re3dir = "/home/utilisateur/builds/Re3/"
+re3dir = "/imatge/bdorra/Re3/"
 imageDir = "/home/utilisateur/Desktop/CalaEgos7LTest/slice1/"
 imgFormat = ".jpg"
 xmlFile = "7_xmlTrackTest.xml"
@@ -311,9 +311,8 @@ def main(re3dir, imageDir, imgFormat, xmlPath, newXmlPath):
 
     #Load the images paths
     if arguments['--images']:
-        imagePaths = arguments['--images']
-    else:
-        imagePaths = sorted(glob.glob(os.path.join(imageDir, '*'+imgFormat)))
+        imageDir = arguments['--images']
+    imagePaths = sorted(glob.glob(os.path.join(imageDir, '*'+imgFormat)))
     #Load the xml annotation file
     if arguments['--xml']:
         xmlPath = arguments['--xml']

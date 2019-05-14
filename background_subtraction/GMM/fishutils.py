@@ -3,17 +3,21 @@ import skimage.morphology as morph
 import numpy as np
 from scipy.spatial import distance as dist
 from collections import OrderedDict
+import matplotlib as plt
+
 
 #  Reference: https://www.pyimagesearch.com/2018/07/23/simple-object-tracking-with-opencv/
 class CentroidTracker():
     def __init__(self, maxDisappeared = 15):
         self.nextObjectID = 0  # counter used to assign unique IDs to each object
-        self.objects = OrderedDict()  # Object ID - Centroid(x,y)
+        self.objects = OrderedDict()  # Dictionary where:
+            # KEY: Object ID
+            # VALUE: Tuple containing [Centroid (x,y),  Rectangle (startX, startY, endX, endY)]
         self.disappeared = OrderedDict()  # Object ID - #frames where object is lost
         self.maxDisappeared = maxDisappeared
 
-    def register(self, centroid):
-        self.objects[self.nextObjectID] = centroid
+    def register(self, coordinates):
+        self.objects[self.nextObjectID] = coordinates
         self.disappeared[self.nextObjectID] = 0
         self.nextObjectID += 1
 
@@ -21,7 +25,7 @@ class CentroidTracker():
         del self.objects[objectID]
         del self.disappeared[objectID]
 
-    def update(self, rects):  # rects is a tuple (startX, startY, endX, endY)
+    def update(self, rects):  # rects is a tuple formed by all the rectangles (startX, startY, endX, endY)
         if len(rects) == 0:
             for objectID in self.disappeared.keys():
                 self.disappeared[objectID] += 1
@@ -29,30 +33,44 @@ class CentroidTracker():
                     self.deregister(objectID)
             return self.objects
 
-        inputCentroids = np.zeros((len(rects), 2), dtype="int")
-        # TODO: Aqui posar els meus centroids
+        # coordinates for the objects in the CURRENT frame
+        inputCoordinates = {}
         for (i, (startX, startY, endX, endY)) in enumerate(rects):
             cX = int((startX + endX) / 2.0)
             cY = int((startY + endY) / 2.0)
-            inputCentroids[i] = (cX, cY)
+            inputCoordinates[i] = [(cX, cY), (startX, startY, endX, endY)]
 
+        # if we are currently not tracking any object
         if len(self.objects) == 0:
-            for i in range(0, len(inputCentroids)):
-                self.register(inputCentroids[i])
+            for i in range(0, len(inputCoordinates)):
+                self.register(inputCoordinates[i])
+
         # Match the input centroids to existing object centroids
         else:
             objectIDs = list(self.objects.keys())
-            objectCentroids = list(self.objects.values())
+
+            objectCentroids = []  # already registered centroids
+            for i in self.objects.keys():
+                objectCentroids.append(self.objects[i][0])
+
+            inputCentroids = []  # appearing centroids in the current frame
+            for i in range(len(inputCoordinates)):
+                inputCentroids.append(inputCoordinates[i][0])
+
             D = dist.cdist(np.array(objectCentroids), inputCentroids)
+
             rows = D.min(axis=1).argsort()
             cols = D.argmin(axis=1)[rows]
             usedRows = set()
             usedCols = set()
+
             for (row, col) in zip(rows, cols):
                 if row in usedRows or col in usedCols:
                     continue
+
                 objectID = objectIDs[row]
-                self.objects[objectID] = inputCentroids[col]
+                self.objects[objectID] = inputCoordinates[col]
+
                 self.disappeared[objectID] = 0
                 usedRows.add(row)
                 usedCols.add(col)
@@ -67,8 +85,9 @@ class CentroidTracker():
                         self.deregister(objectID)
             else:
                 for col in unusedCols:
-                    self.register(inputCentroids[col])
+                    self.register(inputCoordinates[col])
         return self.objects
+
 
 #  Reference: PyImageSearch
 class TrackableObject:
@@ -119,22 +138,20 @@ def processBackground(back):
     hull = hull.astype('uint8')
     return hull
 
-def getCentroids(ima):
-    ret, thresh = cv2.threshold(ima, 127, 255, 0)
+
+def getBoxes(hull):
+    ret, thresh = cv2.threshold(hull, 127, 255, 0)
     contours, hierarchy = cv2.findContours(thresh, 1, 2)
-    centroids = np.zeros([len(contours), 2])
-    boxes = np.zeros([len(contours), 4])  # x, y, w, h
-    i = 0  # TODO: Delete i and make it with c
+    rects = []
     for c in contours:
-        M = cv2.moments(c)
-        # centroids[i, 0] = int(M["m10"] / M["m00"])
-        # centroids[i, 1] = int(M["m01"] / M["m00"])
-        boxes[i, :] = cv2.boundingRect(c)
-        boxes[i, 2] = boxes[i, 0] + boxes[i, 2]
-        boxes[i, 3] = boxes[i, 1] + boxes[i, 3]
-        # now startX, startY, endX, endY
-        i = i + 1
-    return centroids, boxes
+        box = cv2.boundingRect(c)
+        startX = box[0]
+        startY = box[1]
+        endX = box[0] + box[2]
+        endY = box[1] + box[3]
+        rects.append([startX, startY, endX, endY])
+    return rects
+
 
 
 def plotCentroids(ori, hull, centroids, boxes, num_frame):
@@ -146,6 +163,7 @@ def plotCentroids(ori, hull, centroids, boxes, num_frame):
     cv2.putText(ori, 'Andratx8_6L: Frame #' + str(num_frame), (10, 25), font, 1, (0, 0, 0), 2, cv2.LINE_AA)
     cv2.imshow('Object Tracking', ori)
     cv2.waitKey(1)
+
 
 def Display_Image(ima, name='Image'):
     f, axarr = plt.subplots(1, 1)
@@ -179,7 +197,8 @@ def Display_4_Images(ima1, ima2, ima3, ima4, name1='Image 1', name2='Image 2', n
     plt.show()
 
 
-def Display_6_Images(ima1, ima2, ima3, ima4, ima5, ima6, name1 = 'Image 1', name2='Image 2', name3='Image 3', name4='Image 4', name5='Image 5', name6='Image 6', super=''):
+def Display_6_Images(ima1, ima2, ima3, ima4, ima5, ima6, name1='Image 1', name2='Image 2', name3='Image 3',
+                     name4='Image 4', name5='Image 5', name6='Image 6', super=''):
     f, axarr = plt.subplots(2, 3)
     plt.suptitle(super)
     axarr[0, 0].imshow(ima1, cmap='Greys_r')
@@ -195,3 +214,4 @@ def Display_6_Images(ima1, ima2, ima3, ima4, ima5, ima6, name1 = 'Image 1', name
     axarr[1, 2].imshow(ima6, cmap='Greys_r')
     axarr[1, 2].title.set_text(name6)
     plt.show()
+

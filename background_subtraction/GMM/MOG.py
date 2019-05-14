@@ -2,7 +2,7 @@ import cv2
 from fishutils import *
 
 video = ['Andratx8_6L', 'Andratx9_6L', 'CalaEgos5L']
-num_video = 0
+num_video = 2
 
 dir_name = '/Users/marinaalonsopoal/Documents/Telecos/Master/Research/Videos/'+video[num_video]+'/'
 cap = cv2.VideoCapture(dir_name + video[num_video] + '.mp4')
@@ -19,7 +19,8 @@ display = False
 display_speed = [0, 20, 100]
 capture = True
 num_frame = 1
-last_frame = 100
+initial_frame = 150
+last_frame = 300
 
 while num_frame <= last_frame:
     ret, original = cap.read()
@@ -42,15 +43,16 @@ while num_frame <= last_frame:
     # Background Subtraction
     back = fgbg.apply(frame)
 
-    # Morphological Filters
-    hull = processBackground(back)
+    if num_frame > initial_frame:
+        # Morphological Filters
+        hull = processBackground(back)
 
-    # Save image files
-    if capture:
-        cv2.imwrite(dir_name + 'Originals/Original_Frame_' + str(num_frame) + '.jpg', original)
-        cv2.imwrite(dir_name + 'Backgrounds/Background_Frame_' + str(num_frame) + '.jpg', back)
-        cv2.imwrite(dir_name + 'Hulls/Hull_Frame_' + str(num_frame) + '.jpg', hull)
-        print('Processed Frame #' + str(num_frame))
+        # Save image files
+        if capture:
+            cv2.imwrite(dir_name + 'Originals/Original_Frame_' + str(num_frame) + '.jpg', original)
+            cv2.imwrite(dir_name + 'Backgrounds/Background_Frame_' + str(num_frame) + '.jpg', back)
+            cv2.imwrite(dir_name + 'Hulls/Hull_Frame_' + str(num_frame) + '.jpg', hull)
+            print('Processed Frame #' + str(num_frame))
 
     num_frame = num_frame + 1
 

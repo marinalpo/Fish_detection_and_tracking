@@ -6,37 +6,35 @@ ct = CentroidTracker()
 (H, W) = (None, None)
 
 video = ['Andratx8_6L', 'Andratx9_6L', 'CalaEgos5L']
-num_video = 0
+num_video = 2
 
 dir_name = '/Users/marinaalonsopoal/Documents/Telecos/Master/Research/Videos/'+video[num_video]+'/'
 
 num_frame = 1
-last_frame = 300
+last_frame = 150
 
 while num_frame <= last_frame:
+
     ori = mpimg.imread(dir_name + 'Originals/Original_Frame_' + str(num_frame) + '.jpg')
     hull = mpimg.imread(dir_name + 'Hulls/Hull_Frame_' + str(num_frame) + '.jpg')
-    centroids, boxes = getCentroids(hull)
-    rects = []
 
-    for i in range(0, len(centroids)):
-        box = boxes[i,:]
-        rects.append(box)
-        (startX, startY, endX, endY) = box.astype("int")
-        cv2.rectangle(ori, (startX, startY), (endX, endY), (255,0,0), 4)
+    # Get bounding boxes from detection
+    rects = getBoxes(hull)
 
     objects = ct.update(rects)
 
-    for (objectID, centroid) in objects.items():
+    for (objectID, coordinates) in objects.items():
+        print('id:', objectID, 'label: Fish', 'frame:', str(num_frame), 'xtl:', coordinates[1][0], 'ytl:',
+              coordinates[1][1], 'xbr:', coordinates[1][0], 'ybr:', coordinates[1][0])
         text = "FISH {}".format(objectID)
-        cv2.putText(ori, text, (centroid[0]-10, centroid[1]-10),
+        # ID Tag
+        cv2.putText(ori, text, (coordinates[1][0], coordinates[1][1] - 10),
                     cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 2)
-        cv2.circle(ori, (centroid[0], centroid[1]), 4,  (255, 0, 0), -1)
+        # Bounding Box
+        cv2.rectangle(ori, (coordinates[1][0], coordinates[1][1]), (coordinates[1][2], coordinates[1][3]), (255, 0, 0), 4)
 
-    cv2.putText(ori, 'Andratx8_6L: Frame #' + str(num_frame), (10, 25), cv2.FONT_HERSHEY_DUPLEX, 1, (0, 0, 0), 2, cv2.LINE_AA)
     ori = cv2.cvtColor(ori, cv2.COLOR_BGR2RGB)
-    cv2.imshow("Frame", ori)
-
+    cv2.imshow('Frame', ori)
     key = cv2.waitKey(10) & 0xFF
     num_frame += 1
 

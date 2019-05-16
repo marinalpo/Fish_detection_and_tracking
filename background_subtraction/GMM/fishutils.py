@@ -89,20 +89,14 @@ class CentroidTracker():
         return self.objects
 
 
-#  Reference: PyImageSearch
-class TrackableObject:
-    def __init__(self, objectID, centroid, startFrame):
-        # store the object ID, then initialize a list of centroids
-        # using the current centroid
-        self.objectID = objectID
-        self.centroids = [centroid]
-
-        # initialize a boolean used to indicate if the object has
-        # already been counted or not
-        self.counted = False
-
-        self.startFrame = startFrame
-        self.endFrame = startFrame
+def classify(evo, pix):
+    isFish = False
+    th = len(evo) * pix * 2
+    diff = [np.diff(evo[:, 0]), np.diff(evo[:, 1])]
+    mov = np.sum(np.abs(diff))  # absolute number of moved pixels
+    if mov > th:
+        isFish = True
+    return isFish
 
 
 def processBackground(back):

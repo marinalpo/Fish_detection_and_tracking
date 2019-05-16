@@ -6,12 +6,12 @@ ct = CentroidTracker()
 (H, W) = (None, None)
 
 video = ['Andratx8_6L', 'Andratx9_6L', 'CalaEgos5L']
-num_video = 2
+num_video = 0
 
 dir_name = '/Users/marinaalonsopoal/Documents/Telecos/Master/Research/Videos/'+video[num_video]+'/'
 
-num_frame = 1
-last_frame = 150
+num_frame = 200
+last_frame = 200
 
 while num_frame <= last_frame:
 

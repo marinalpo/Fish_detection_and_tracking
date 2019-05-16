@@ -1,5 +1,8 @@
 """
 Convert marina format to a cvat compatible xml
+(assumes 1080p images, change width and height
+values in the code if necessary)
+
 
 Usage: marinaFormatToCvat.py -i <pathToFile> -o <pathToXml> [-m <mode>]
 
@@ -15,6 +18,7 @@ import os.path
 
 width = '1920'
 height = '1080'
+
 
 arguments = docopt(__doc__)
 with open(arguments['--input']) as file:
@@ -46,4 +50,5 @@ with open(arguments['--input']) as file:
                 tracks+=1
             xml.addBoxToTrack(sline[1], sline[5], sline[7], sline[9], sline[11], sline[13].rsplit('\n')[0])
 
+    xml.bboxInBounds()
     xml.writeXml('', arguments['--output'])

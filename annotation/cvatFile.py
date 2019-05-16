@@ -199,3 +199,39 @@ class cvatXml:
         Access the xml
         """
         return self.xml
+
+    def bboxInBounds(self): 
+        """Correcting boxes partially or completely out of bounds,
+        otherwise cvat will not be able to import the xml
+        """
+        def limitBbox(bbox):
+            xtags = ['xtl', 'xbr']
+            ytags = ['ytl', 'ybr']
+            for tag in xtags+ytags:
+                if float(bbox.get(tag))<0:
+                    bbox.set(tag, '0')
+            for tag in xtags:
+                if float(bbox.get(tag))>width:
+                    bbox.set(tag, str(width))
+            for tag in ytags:
+                if float(bbox.get(tag))>height:
+                    bbox.set(tag, str(height))
+
+        mode = self.xml.find('meta').find('task').find('mode').text          
+
+        if mode == "interpolation":
+            original_size = self.xml.getroot().find('meta').find('task').\
+                            find('original_size')
+            width = int(original_size.find('width').text)
+            height = int(original_size.find('height').text)
+            for track in self.xml.findall('track'):
+                for bbox in track.findall('box'):
+                    limitBbox(bbox)
+                    
+        if mode == "annotation":
+            for image in self.xml.findall('image'):
+                width = int(image.get("width"))
+                height = int(image.get("height"))
+                for bbox in image.findall('box'):
+                    limitBbox(bbox)
+

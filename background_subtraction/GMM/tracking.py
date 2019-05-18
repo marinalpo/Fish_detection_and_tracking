@@ -25,7 +25,7 @@ while num_frame <= last_frame:
 
     for (objectID, coordinates) in objects.items():
         print('id:', objectID, 'label: Fish', 'frame:', str(num_frame), 'xtl:', coordinates[1][0], 'ytl:',
-              coordinates[1][1], 'xbr:', coordinates[1][0], 'ybr:', coordinates[1][0])
+              coordinates[1][1], 'xbr:', coordinates[1][2], 'ybr:', coordinates[1][3])
         text = "FISH {}".format(objectID)
         # ID Tag
         cv2.putText(ori, text, (coordinates[1][0], coordinates[1][1] - 10),

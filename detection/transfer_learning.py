@@ -5,7 +5,7 @@ import argparse
 import pdb
 import collections
 import sys
-from enum import Enum
+from enum import IntEnum
 import numpy as np
 
 import torch
@@ -29,11 +29,13 @@ assert torch.__version__.split('.')[1] == '4'
 import pickle
 from functools import partial
 
+"""srun --mem 8G --gres=gpu:1,gmem:10G python transfer_learning.py  --learning_mode 0 --model /imatge/ppalau/work/Fishes/coco_resnet_50_map_0_335.pt --csv_train /imatge/ppalau/work/Fishes/test_image.csv  --classes /imatge/ppalau/work/Fishes/classes_mappings.csv --val /imatge/ppalau/work/Fishes/csv_val.csv"""
+# TODO: try loading a model with resnet 152 
 
 # To try more than two
-class LearningMode(Enum):
-    FINETUNING = 0
-    FEATURE_EXTRACTOR = 1
+class LearningMode(IntEnum):
+    FINETUNING = 1
+    FEATURE_EXTRACTOR = 2
 
 def train_model():
     print("")
@@ -47,9 +49,9 @@ def main(args=None):
     parser.add_argument('--classes', help ='Path to file containing class list')
     parser.add_argument('--val', help ='Path to file containing validation annotations (output from xml_to_csv.py)')
     args = parser.parse_args()
-    print(args)
-    learning_mode = args.learning_mode
-
+    
+    learning_mode = int(args.learning_mode)
+    
     # Cuda
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -68,16 +70,16 @@ def main(args=None):
     # Load pretrained model
     retinanet = torch.load(args.model, pickle_module=pickle)
 
-    # Print the model
-    print(model)
-    
+    retinanet.train(True)
+
     if(learning_mode == LearningMode.FINETUNING):
         # Begin with pretrained model and train it all
-        print("Model load correctly, finetuning selcted")
-
+        print("Model load successfully, finetuning selcted")
+        # Train the whole model
     elif(learning_mode == LearningMode.FEATURE_EXTRACTOR):
-        # Freeze some layers (and networks, for example ResNet and FPN) and train the rest 
-        print("Model load correctly, feature extraction selected")
+        print("Model load successfully, feature extraction selected")
+        # Freeze ResNet and FPN layers and train the rest 
         
+
 if __name__ == '__main__':
     main()

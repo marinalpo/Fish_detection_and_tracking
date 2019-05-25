@@ -11,7 +11,7 @@ num_video = 0
 
 dir_name = '/Users/marinaalonsopoal/Documents/Telecos/Master/Research/Videos/'+video[num_video]+'/'
 
-num_frame = 1
+num_frame = 200
 last_frame = 300
 
 fishEvo = {}  # Fish Evolution: Dictionary with KEY: Fish ID, VALUE: Concatenation tuple of [Frame][CenroidX, CentroidY}
@@ -72,7 +72,7 @@ while num_frame <= last_frame:
                       color, 4)
 
     ori = cv2.cvtColor(ori, cv2.COLOR_BGR2RGB)
-    cv2.imshow('Frame', ori)
+    cv2.imshow('Fish Detection', ori)
     key = cv2.waitKey(10) & 0xFF
     num_frame += 1
 

@@ -31,7 +31,7 @@ from functools import partial
 
 """srun --mem 8G --gres=gpu:1,gmem:10G python transfer_learning.py  --learning_mode 0 --model /imatge/ppalau/work/Fishes/coco_resnet_50_map_0_335.pt --csv_train /imatge/ppalau/work/Fishes/test_image.csv  --classes /imatge/ppalau/work/Fishes/classes_mappings.csv --val /imatge/ppalau/work/Fishes/csv_val.csv"""
 """
-/work/bdorra/annotations/ if you need data. The corresponding images are in /work/morros/fish/video_segments/
+I tried to train the network importing the whole model but it did not work. Now in this script I will try to load the state_dict weights and retrain them.
 """ 
 
 # TODO: try loading a model with resnet 152 
@@ -55,6 +55,7 @@ def train_model(retinanet, dataset_train, dataset_val, dataloader_train, dataloa
     for epoch_num in range(epochs):
 
         retinanet.train()
+        retinanet.training = True
         retinanet.module.freeze_bn()
         
         epoch_loss = []
@@ -62,9 +63,9 @@ def train_model(retinanet, dataset_train, dataset_val, dataloader_train, dataloa
         for iter_num, data in enumerate(dataloader_train):
             try:
                 optimizer.zero_grad()
-
+                print("Es posa a fer el forward")
                 classification_loss, regression_loss = retinanet([data['img'].cuda().float(), data['annot']])
-
+                print("Ha fet el forward")
                 classification_loss = classification_loss.mean()
                 regression_loss = regression_loss.mean()
 
@@ -96,7 +97,7 @@ def train_model(retinanet, dataset_train, dataset_val, dataloader_train, dataloa
         
         scheduler.step(np.mean(epoch_loss))    
 
-        torch.save(retinanet.module, '{}_retinanet_{}.pt'.format(parser.dataset, epoch_num))
+        torch.save(retinanet, '{}_retinanet_{}.pt'.format(parser.dataset, epoch_num))
 
     retinanet.eval()
 
@@ -109,14 +110,14 @@ def main(args=None):
     parser = argparse.ArgumentParser()
         
     parser.add_argument('--learning_mode', help = "0: FINETUNING, 1: FEATURE_EXTRACTOR")
-    parser.add_argument('--model', help = 'Path to file containing pretrained weights')
+    parser.add_argument('--model', help = 'Path to file containing pretrained weights (state_dict)')
     parser.add_argument('--csv_train', help ='Path to file containing training annotations (output from xml_to_csv.py)')
     parser.add_argument('--classes', help ='Path to file containing class list')
     parser.add_argument('--val', help ='Path to file containing validation annotations (output from xml_to_csv.py)')
     args = parser.parse_args()
     
     learning_mode = int(args.learning_mode)
-    
+    print("We are going to start the training...")
     # Cuda
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -125,22 +126,30 @@ def main(args=None):
     dataset_val = CSVDataset(train_file=args.val, class_list=args.classes, transform=transforms.Compose([Normalizer(), Resizer()]))
     
     # Define dataloaders for each dataset
-    sampler = AspectRatioBasedSampler(dataset_train, batch_size=2, drop_last=False)
-    dataloader_train = DataLoader(dataset_train, num_workers=3, collate_fn=collater, batch_sampler=sampler)
-    sampler_val = AspectRatioBasedSampler(dataset_val, batch_size=1, drop_last=False)
-    dataloader_val = DataLoader(dataset_val, num_workers=3, collate_fn=collater, batch_sampler=sampler_val)
+    sampler = AspectRatioBasedSampler(dataset_train, batch_size=7, drop_last=False)
+    dataloader_train = DataLoader(dataset_train, num_workers=1, collate_fn=collater, batch_sampler=sampler)
+    sampler_val = AspectRatioBasedSampler(dataset_val, batch_size=5, drop_last=False)
+    dataloader_val = DataLoader(dataset_val, num_workers=1, collate_fn=collater, batch_sampler=sampler_val)
 
     pickle.load = partial(pickle.load, encoding="latin1")
     pickle.Unpickler = partial(pickle.Unpickler, encoding="latin1")
+    
     # Load pretrained model
     retinanet = torch.load(args.model, pickle_module=pickle)
-    print("Retinanet model:")
+    print(retinanet.focalLoss())
 
-    print(retinanet.layer1)
-    
-    for param in retinanet.layer1.parameters():
-        print(param.requires_grad)
-    retinanet.train(True)
+    print("Retinanet model before dataparallel:")
+    print(type(retinanet))
+    retinanet.dump_patches = True
+    # When we work with a DataParallel object we must access the model using model.module
+    retinanet = torch.nn.DataParallel(retinanet)
+    retinanet.cuda()
+
+    print("Retinanet model after dataparallel:")
+    print(type(retinanet.module))
+
+
+
 
 
     if(learning_mode == LearningMode.FINETUNING):

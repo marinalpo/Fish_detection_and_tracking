@@ -36,7 +36,7 @@ def xml_to_csv(path):
                 print(track.attrib)
                 image_dict = track.attrib
                 image_name = image_dict['name']
-                complete_image_name = os.path.join(base_image_path, videoname,image_name)
+                complete_image_name = os.path.join(base_image_path, videoname,videopart,image_name)
                 complete_image_name = complete_image_name.replace(os.sep, '/')
                 for box in track.findall('box'):
                     box_dict = box.attrib
@@ -70,7 +70,7 @@ def xml_to_csv(path):
                 print(track.attrib)
                 image_dict = track.attrib
                 image_name = image_dict['name']
-                complete_image_name = os.path.join(base_image_path, videoname,image_name)
+                complete_image_name = os.path.join(base_image_path, videoname,videopart,image_name)
                 complete_image_name = complete_image_name.replace(os.sep, '/')
                 for box in track.findall('box'):
                     box_dict = box.attrib
@@ -85,8 +85,8 @@ def xml_to_csv(path):
                     xml_list_train.append(value)
 
     column_name = ['frame', 'xtl', 'ytl', 'xbr', 'ybr','fish_type']
-    xml_df_val = pd.DataFrame(xml_list_val, columns=column_name)
-    xml_df_train = pd.DataFrame(xml_list_train, columns = column_name)
+    xml_df_val = pd.DataFrame(xml_list_val, columns=None)
+    xml_df_train = pd.DataFrame(xml_list_train, columns = None)
     print("Percentage of serranus in training set = "+ str(serranus[1]/(serranus[1]+other[1])))
     print("Number of serranus in training = " + str(serranus[1]))
     print("Percentage of serranus in validation set = "+ str(serranus[0]/(serranus[0]+other[0])))

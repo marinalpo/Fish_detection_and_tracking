@@ -22,8 +22,8 @@ def calc_iou(a, b):
     return IoU
 
 class FocalLoss(nn.Module):
-    #def __init__(self):
-
+    # def __init__(self):
+    #     print("CREO LA FOCAL LOSS")
     def forward(self, classifications, regressions, anchors, annotations):
         alpha = 0.25
         gamma = 2.0

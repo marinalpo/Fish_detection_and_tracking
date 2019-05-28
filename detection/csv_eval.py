@@ -232,7 +232,7 @@ def evaluate(
     print('\nmAP:')
     for label in range(generator.num_classes()):
         label_name = generator.label_to_name(label)
-        print('{}: {}'.format(label_name, average_precisions[label][0]))
+        print('{}: {}, num of annotations = {}'.format(label_name, average_precisions[label][0], average_precisions[label][1]))
     
     return average_precisions
 

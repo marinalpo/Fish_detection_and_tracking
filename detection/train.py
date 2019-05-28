@@ -110,6 +110,7 @@ def main(args=None):
 
 	loss_hist = collections.deque(maxlen=500)
 
+	# Method train in nn.Module class sets the model to training mode, that is, sets the training attribute to True
 	retinanet.train()
 	retinanet.module.freeze_bn()
 

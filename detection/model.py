@@ -9,12 +9,13 @@ import losses
 from lib.nms.pth_nms import pth_nms
 
 def nms(dets, thresh):
-    "Dispatch to either CPU or GPU NMS implementations.\
+    """Dispatch to either CPU or GPU NMS implementations.\
     Accept dets as tensor"""
     return pth_nms(dets, thresh)
 
 model_urls = {
-    'resnet18': 'https://download.pytorch.org/models/resnet18-5c106cde.pth',
+    #'resnet18': 'https://download.pytorch.org/models/resnet18-5c106cde.pth',
+    'resnet18': 'https://s3.amazonaws.com/pytorch/models/resnet18-5c106cde.pth',
     'resnet34': 'https://download.pytorch.org/models/resnet34-333f7ec4.pth',
     'resnet50': 'https://download.pytorch.org/models/resnet50-19c8e357.pth',
     'resnet101': 'https://download.pytorch.org/models/resnet101-5d3b4d8f.pth',
@@ -113,7 +114,8 @@ class RegressionModel(nn.Module):
 class ClassificationModel(nn.Module):
     def __init__(self, num_features_in, num_anchors=9, num_classes=80, prior=0.01, feature_size=256):
         super(ClassificationModel, self).__init__()
-
+        
+        # The number of classes is 80 because coco dataset has 80 categories, I think we should change this to 3: other, fish, and serranus
         self.num_classes = num_classes
         self.num_anchors = num_anchors
         
@@ -157,6 +159,8 @@ class ClassificationModel(nn.Module):
         out2 = out1.view(batch_size, width, height, self.num_anchors, self.num_classes)
 
         return out2.contiguous().view(x.shape[0], -1, self.num_classes)
+
+    
 
 class ResNet(nn.Module):
 
@@ -230,6 +234,7 @@ class ResNet(nn.Module):
         for layer in self.modules():
             if isinstance(layer, nn.BatchNorm2d):
                 layer.eval()
+                
 
     def forward(self, inputs):
 

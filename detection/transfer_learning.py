@@ -29,12 +29,12 @@ assert torch.__version__.split('.')[1] == '4'
 import pickle
 from functools import partial
 
-"""srun --mem 8G --gres=gpu:1,gmem:10G python transfer_learning.py  --learning_mode 0 --model /imatge/ppalau/work/Fishes/coco_resnet_50_map_0_335.pt --csv_train /imatge/ppalau/work/Fishes/test_image.csv  --classes /imatge/ppalau/work/Fishes/classes_mappings.csv --val /imatge/ppalau/work/Fishes/csv_val.csv"""
+"""srun --mem 8G --gres=gpu:1,gmem:10G python transfer_learning.py  --learning_mode 1 --model /imatge/ppalau/sespeixos/coco_resnet_50_map_0_335_state_dict.pt --csv_train /imatge/ppalau/work/Fishes/data/train.csv  --classes /imatge/ppalau/work/Fishes/data/fishes_classes.csv --val /imatge/ppalau/work/Fishes/data/val.csv"""
 """
 I tried to train the network importing the whole model but it did not work. Now in this script I will try to load the state_dict weights and retrain them.
 """ 
 
-# TODO: try loading a model with resnet 152 
+# TODO: try loading a model with resnet 152 !!!
 
 # To try more than two
 class LearningMode(IntEnum):
@@ -42,7 +42,7 @@ class LearningMode(IntEnum):
     FEATURE_EXTRACTOR = 2
 
 def train_model(retinanet, dataset_train, dataset_val, dataloader_train, dataloader_val):
-    optimizer = optim.Adam(retinanet.parameters(), lr=1e-5)
+    optimizer = optim.Adam(retinanet.parameters(), lr=1e-4)
 
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=3, verbose=True)
 
@@ -83,7 +83,9 @@ def train_model(retinanet, dataset_train, dataset_val, dataloader_train, dataloa
                 epoch_loss.append(float(loss))
 
                 print('Epoch: {} | Iteration: {} | Classification loss: {:1.5f} | Regression loss: {:1.5f} | Running loss: {:1.5f}'.format(epoch_num, iter_num, float(classification_loss), float(regression_loss), np.mean(loss_hist)))
-                
+                # print("weights at output layer = ")
+                # print(retinanet.module.classificationModel.output.bias)
+
                 del classification_loss
                 del regression_loss
             except Exception as e:
@@ -124,7 +126,7 @@ def main(args=None):
     dataset_val = CSVDataset(train_file=args.val, class_list=args.classes, transform=transforms.Compose([Normalizer(), Resizer()]))
     
     # Define dataloaders for each dataset
-    sampler = AspectRatioBasedSampler(dataset_train, batch_size=8, drop_last=False)
+    sampler = AspectRatioBasedSampler(dataset_train, batch_size=5, drop_last=False)
     dataloader_train = DataLoader(dataset_train, num_workers=1, collate_fn=collater, batch_sampler=sampler)
     sampler_val = AspectRatioBasedSampler(dataset_val, batch_size=5, drop_last=False)
     dataloader_val = DataLoader(dataset_val, num_workers=1, collate_fn=collater, batch_sampler=sampler_val)
@@ -135,17 +137,16 @@ def main(args=None):
     # Load pretrained model
     print("Number of classes = " + str(dataset_train.num_classes()))
     retinanet = model.resnet50(num_classes=dataset_train.num_classes(),)
-    # retinanet = model.resnet50(num_classes = 80)
     
     pretrained_dict = torch.load(args.model)
     model_dict = retinanet.state_dict()
 
     print("################# Pretrained ######################")
-    print(pretrained_dict['classificationModel.output.weight'])
-    print(pretrained_dict['classificationModel.output.bias'])
+    #print(pretrained_dict['classificationModel.output.weight'])
+    #print(pretrained_dict['classificationModel.output.bias'])
     print("######## Your retinanet")
-    print(model_dict['classificationModel.output.weight'])
-    print(model_dict['classificationModel.output.bias'])
+    #print(model_dict['classificationModel.output.weight'])
+    #print(model_dict['classificationModel.output.bias'])
     
     # Our model differs just in the last layer of the classification model,so we initialize them with the default values
     pretrained_dict['classificationModel.output.weight'] = model_dict['classificationModel.output.weight'] 
@@ -165,8 +166,9 @@ def main(args=None):
     print(retinanet.module.classificationModel.state_dict().keys())
 
 
-
-
+    print("################################################3")
+   
+    
 
     if(learning_mode == LearningMode.FINETUNING):
         # Begin with pretrained model and train it all
@@ -176,7 +178,10 @@ def main(args=None):
     elif(learning_mode == LearningMode.FEATURE_EXTRACTOR):
         print("Model load successfully, feature extraction selected")
         # Freeze ResNet and FPN layers and train the rest 
-        
+        for name, param in retinanet.module.named_parameters():
+            if(param.requires_grad):
+                if(not (("regressionModel" in name) or ("classificationModel" in name))):
+                    param.requires_grad = False
         train_model(retinanet, dataset_train, dataset_val, dataloader_train,dataloader_val)
 
 if __name__ == '__main__':

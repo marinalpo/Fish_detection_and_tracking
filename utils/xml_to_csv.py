@@ -15,7 +15,7 @@ def xml_to_csv(path):
     serranus = [0, 0] # Number of serranus in validation and training set
     other = [0, 0] # Number of ohter fishes in validation and training set
     for i, xml_file in enumerate(glob.glob(path + '/*.xml')):
-        if(i==0):
+        if(i==0 or i==3):
             # Now do the validation set
             filename = xml_file.split('\\')
             print(filename)
@@ -33,15 +33,15 @@ def xml_to_csv(path):
             root = tree.getroot()
             print(root)
             for track in root.findall('image'):
-                print(track.attrib)
+                # print(track.attrib)
                 image_dict = track.attrib
                 image_name = image_dict['name']
                 complete_image_name = os.path.join(base_image_path, videoname,videopart,image_name)
                 complete_image_name = complete_image_name.replace(os.sep, '/')
                 for box in track.findall('box'):
                     box_dict = box.attrib
-                    print("box_dict")
-                    print(box_dict)
+                    # print("box_dict")
+                    # print(box_dict)
                     if(box_dict['label'] == 'serranus'):
                         serranus[0] += 1
                     else: 
@@ -65,17 +65,17 @@ def xml_to_csv(path):
                 
             tree = ET.parse(xml_file) # this should be the first line
             root = tree.getroot()
-            print(root)
+            # print(root)
             for track in root.findall('image'):
-                print(track.attrib)
+                # print(track.attrib)
                 image_dict = track.attrib
                 image_name = image_dict['name']
                 complete_image_name = os.path.join(base_image_path, videoname,videopart,image_name)
                 complete_image_name = complete_image_name.replace(os.sep, '/')
                 for box in track.findall('box'):
                     box_dict = box.attrib
-                    print("box_dict")
-                    print(box_dict)
+                    # print("box_dict")
+                    # print(box_dict)
                     if(box_dict['label'] == 'serranus'):
                         serranus[1] += 1
                     else: 

@@ -20,7 +20,7 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 import pickle
 from functools import partial
 assert torch.__version__.split('.')[1] == '4'
-
+import model
 """
 Usage:
 srun --mem 8G --gres=gpu:1,gmem:10G python visualize.py --dataset csv --csv_classes /imatge/ppalau/work/Fishes/classes_mappings.csv 
@@ -51,10 +51,16 @@ def main(args=None):
 
 	sampler_val = AspectRatioBasedSampler(dataset_val, batch_size=1, drop_last=False)
 	dataloader_val = DataLoader(dataset_val, num_workers=1, collate_fn=collater, batch_sampler=sampler_val)
-	
-	pickle.load = partial(pickle.load, encoding="latin1")
-	pickle.Unpickler = partial(pickle.Unpickler, encoding="latin1")
-	retinanet = torch.load(parser.model, pickle_module=pickle)
+	load_your_model = True
+
+	retinanet = None
+	if(load_your_model):
+		# retinanet = model.resnet50(num_classes=2,)
+		retinanet = torch.load(parser.model)
+	else:
+		pickle.load = partial(pickle.load, encoding="latin1")
+		pickle.Unpickler = partial(pickle.Unpickler, encoding="latin1")
+		retinanet = torch.load(parser.model, pickle_module=pickle)
 	# Print model to see what resnet backbone uses
 	print(retinanet)
 	use_gpu = True
@@ -85,7 +91,7 @@ def main(args=None):
 			print(transformed_anchors)
 			print('Elapsed time: {}'.format(time.time()-st))
 			# This low threshold is to check the feature proposal network (resnet)
-			idxs = np.where(scores>0.1)
+			idxs = np.where(scores>0.05)
 			print("idxs")
 			print(idxs)
 			# TODO: figure out why plotting the raw bboxes that it gives as output does not work. If we save the image as a .npy and then visualize it is correct, but don't know why
@@ -118,4 +124,4 @@ def main(args=None):
 
 if __name__ == '__main__':
  main()
- print('yayayayayayayaw')
+ print("Finished")

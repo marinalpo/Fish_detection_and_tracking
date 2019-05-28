@@ -160,6 +160,7 @@ class ClassificationModel(nn.Module):
 
         return out2.contiguous().view(x.shape[0], -1, self.num_classes)
 
+    
 
 class ResNet(nn.Module):
 
@@ -233,14 +234,7 @@ class ResNet(nn.Module):
         for layer in self.modules():
             if isinstance(layer, nn.BatchNorm2d):
                 layer.eval()
-    
-    def extract_feature(self, layer):
-        """
-        Feature extraction for transfer learning
-        Doer: MARINA (https://becominghuman.ai/extract-a-feature-vector-for-any-image-with-pytorch-9717561d1d4c )
-        """
-        print("")
-        
+                
 
     def forward(self, inputs):
 

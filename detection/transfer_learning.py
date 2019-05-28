@@ -63,9 +63,7 @@ def train_model(retinanet, dataset_train, dataset_val, dataloader_train, dataloa
         for iter_num, data in enumerate(dataloader_train):
             try:
                 optimizer.zero_grad()
-                print("Es posa a fer el forward")
                 classification_loss, regression_loss = retinanet([data['img'].cuda().float(), data['annot']])
-                print("Ha fet el forward")
                 classification_loss = classification_loss.mean()
                 regression_loss = regression_loss.mean()
 
@@ -91,13 +89,13 @@ def train_model(retinanet, dataset_train, dataset_val, dataloader_train, dataloa
             except Exception as e:
                 print(e)
                 continue
-            print('Evaluating dataset')
-            mAP = csv_eval.evaluate(dataset_val, retinanet)
+        print('Evaluating dataset')
+        mAP = csv_eval.evaluate(dataset_val, retinanet)
 
         
         scheduler.step(np.mean(epoch_loss))    
 
-        torch.save(retinanet, '{}_retinanet_{}.pt'.format(parser.dataset, epoch_num))
+        torch.save(retinanet, 'fishes_retinanet_{}.pt'.format(epoch_num))
 
     retinanet.eval()
 
@@ -126,7 +124,7 @@ def main(args=None):
     dataset_val = CSVDataset(train_file=args.val, class_list=args.classes, transform=transforms.Compose([Normalizer(), Resizer()]))
     
     # Define dataloaders for each dataset
-    sampler = AspectRatioBasedSampler(dataset_train, batch_size=7, drop_last=False)
+    sampler = AspectRatioBasedSampler(dataset_train, batch_size=8, drop_last=False)
     dataloader_train = DataLoader(dataset_train, num_workers=1, collate_fn=collater, batch_sampler=sampler)
     sampler_val = AspectRatioBasedSampler(dataset_val, batch_size=5, drop_last=False)
     dataloader_val = DataLoader(dataset_val, num_workers=1, collate_fn=collater, batch_sampler=sampler_val)
@@ -135,9 +133,25 @@ def main(args=None):
     pickle.Unpickler = partial(pickle.Unpickler, encoding="latin1")
     
     # Load pretrained model
-    retinanet = torch.load(args.model, pickle_module=pickle)
-    print(retinanet.focalLoss())
+    print("Number of classes = " + str(dataset_train.num_classes()))
+    retinanet = model.resnet50(num_classes=dataset_train.num_classes(),)
+    # retinanet = model.resnet50(num_classes = 80)
+    
+    pretrained_dict = torch.load(args.model)
+    model_dict = retinanet.state_dict()
 
+    print("################# Pretrained ######################")
+    print(pretrained_dict['classificationModel.output.weight'])
+    print(pretrained_dict['classificationModel.output.bias'])
+    print("######## Your retinanet")
+    print(model_dict['classificationModel.output.weight'])
+    print(model_dict['classificationModel.output.bias'])
+    
+    # Our model differs just in the last layer of the classification model,so we initialize them with the default values
+    pretrained_dict['classificationModel.output.weight'] = model_dict['classificationModel.output.weight'] 
+    pretrained_dict['classificationModel.output.bias'] = model_dict['classificationModel.output.bias'] 
+    
+    retinanet.load_state_dict(pretrained_dict)
     print("Retinanet model before dataparallel:")
     print(type(retinanet))
     retinanet.dump_patches = True
@@ -147,6 +161,8 @@ def main(args=None):
 
     print("Retinanet model after dataparallel:")
     print(type(retinanet.module))
+    print("Retinanet's classification model state_dict:")
+    print(retinanet.module.classificationModel.state_dict().keys())
 
 
 

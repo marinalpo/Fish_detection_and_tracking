@@ -14,25 +14,34 @@ def xml_to_csv(path):
     xml_list_val = []
     serranus = [0, 0] # Number of serranus in validation and training set
     other = [0, 0] # Number of ohter fishes in validation and training set
+    names_train = ['CalaEgos2L_0015', 'CalaEgos2L_0027', \
+                   'CalaEgos3L_0016', 'CalaEgos3L_0047', 'CalaEgos3L_0049', 'CalaEgos3L_0081', 'CalaEgos3L_0088',\
+                   'CalaEgos5L_0008','CalaEgos5L_0066','CalaEgos5L_0074',\
+                   'CalaEgos6L_0053',\
+                   'CalaEgos8L_0010', 'CalaEgos8L_0035','CalaEgos8L_0054', 'CalaEgos8L_0068', 'CalaEgos8L_0096', 'CalaEgos8L_0097',\
+                   'CalaEgos9L_0066', 'CalaEgos9L_0069', 'CalaEgos9L_0094']
+    names_val = ['CalaEgos1L_0071', 'CalaEgos3L_0034', 'CalaEgos3L_0064', 'CalaEgos3L_0071',\
+        'CalaEgos4L_0076', 'CalaEgos8L_0080']
+
     for i, xml_file in enumerate(glob.glob(path + '/*.xml')):
-        if(i==0 or i==3):
+        filename = xml_file.split('\\')
+        print(filename)
+        complete_videoname = filename[-1].split('_')
+        videoname = complete_videoname[0]
+        videopart = complete_videoname[1].split('.')[0]
+        print("Filename")
+        print(filename[-1].split('.')[0])
+        print("Video")
+        print(videoname)
+        print("Video part")
+        print(videopart)
+        if(filename[-1].split('.')[0] in names_val):
             # Now do the validation set
-            filename = xml_file.split('\\')
-            print(filename)
-            complete_videoname = filename[-1].split('_')
-            videoname = complete_videoname[0]
-            videopart = complete_videoname[1].split('.')[0]
-            print("Filename")
-            print(xml_file)
-            print("Video")
-            print(videoname)
-            print("Video part")
-            print(videopart)
-                
             tree = ET.parse(xml_file) # this should be the first line
             root = tree.getroot()
             print(root)
             for track in root.findall('image'):
+                print("VALIDATION")
                 # print(track.attrib)
                 image_dict = track.attrib
                 image_name = image_dict['name']
@@ -46,23 +55,13 @@ def xml_to_csv(path):
                         serranus[0] += 1
                     else: 
                         other[0] += 1
+                    if(box_dict['label']=='fish' or box_dict['label']=='other'):
+                        box_dict['label'] = 'other'
                     # The format that the CSVDataloader expects is frame, x1, y1, x2, y2, class_name
                     value = (str(complete_image_name), int(round(float(box_dict['xtl']))), int(round(float(box_dict['ytl']))), int(round(float(box_dict['xbr']))), int(round(float(box_dict['ybr']))), str(box_dict['label']))
                     xml_list_val.append(value)
-        else:
-            # Now do the training set
-            filename = xml_file.split('\\')
-            print(filename)
-            complete_videoname = filename[-1].split('_')
-            videoname = complete_videoname[0]
-            videopart = complete_videoname[1].split('.')[0]
-            print("Filename")
-            print(xml_file)
-            print("Video")
-            print(videoname)
-            print("Video part")
-            print(videopart)
-                
+        else:   
+            print("TRAINING")
             tree = ET.parse(xml_file) # this should be the first line
             root = tree.getroot()
             # print(root)
@@ -81,6 +80,8 @@ def xml_to_csv(path):
                     else: 
                         other[1] += 1
                     # The format that the CSVDataloader expects is frame, x1, y1, x2, y2, class_name
+                    if(box_dict['label']=='fish' or box_dict['label']=='other'):
+                        box_dict['label'] = 'other'
                     value = (str(complete_image_name), int(round(float(box_dict['xtl']))), int(round(float(box_dict['ytl']))), int(round(float(box_dict['xbr']))), int(round(float(box_dict['ybr']))), str(box_dict['label']))
                     xml_list_train.append(value)
 

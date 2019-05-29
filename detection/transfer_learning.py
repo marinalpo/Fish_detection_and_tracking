@@ -49,7 +49,7 @@ def train_model(retinanet, dataset_train, dataset_val, dataloader_train, dataloa
     loss_hist = collections.deque(maxlen=500)
 
     retinanet.module.freeze_bn()
-    epochs = 120
+    epochs = 500
     print('Num training images: {}'.format(len(dataset_train)))
 
     for epoch_num in range(epochs):
@@ -97,7 +97,7 @@ def train_model(retinanet, dataset_train, dataset_val, dataloader_train, dataloa
         
         scheduler.step(np.mean(epoch_loss))    
 
-        torch.save(retinanet, 'fishes_retinanet_{}.pt'.format(epoch_num))
+        torch.save(retinanet, '/imatge/ppalau/work/Fishes/model_weights/2/fishes_retinanet_{}.pt'.format(epoch_num))
 
     retinanet.eval()
 

@@ -37,8 +37,8 @@ def main(args=None):
 	parser.add_argument('--csv_classes', help='Path to file containing class list (see readme)')
 	parser.add_argument('--csv_val', help='Path to file containing validation annotations (optional, see readme)')
 
-	parser.add_argument('--model', help='Path to model (.pt) file.')
-
+	parser.add_argument('--model', help='Path to model (.pt) file. ResNet')
+    parser.add_argument('--model_retina', help='Path to retinanet model (fishes)')
 	parser = parser.parse_args(args)
 
 	if parser.dataset == 'coco':
@@ -50,16 +50,20 @@ def main(args=None):
 
 	sampler_val = AspectRatioBasedSampler(dataset_val, batch_size=1, drop_last=False)
 	dataloader_val = DataLoader(dataset_val, num_workers=1, collate_fn=collater, batch_sampler=sampler_val)
-	load_your_model = True
-
-	retinanet = None
-	if(load_your_model):
-		# retinanet = model.resnet50(num_classes=2,)
-		retinanet = torch.load(parser.model)
-	else:
-		pickle.load = partial(pickle.load, encoding="latin1")
-		pickle.Unpickler = partial(pickle.Unpickler, encoding="latin1")
-		retinanet = torch.load(parser.model, pickle_module=pickle)
+	
+    pretrained_resnet = torch.load(parser.model)
+    pretrained_retinanet = torch.load(parser.model_retina)
+    retinanet = model.resnet152(num_classes=2,)
+    inference_retinanet = retinanet.state_dict()
+    print("Trying to change parameters")
+    for name, param in retinanet.named_parameters():
+        if(param.requires_grad):
+            if((not (("regressionModel" in name) or ("classificationModel" in name))):
+                # We are in ResNet or FPN
+                inference_retinanet[name] = pretrained_resnet[name]
+            else:
+                inference_retinanet[name] = pretrained_retinanet[name]
+    print("Parameters switched")
 	# Print model to see what resnet backbone uses
 	print(retinanet)
 	use_gpu = True

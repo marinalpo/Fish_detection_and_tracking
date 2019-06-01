@@ -2,3 +2,4 @@
 .idea/
 detection/__pycache__/
 *.pyc
+utils/plot_learning_curves.py

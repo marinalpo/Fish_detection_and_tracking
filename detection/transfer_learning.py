@@ -34,8 +34,6 @@ from functools import partial
 I tried to train the network importing the whole model but it did not work. Now in this script I will try to load the state_dict weights and retrain them.
 """ 
 
-# TODO: try loading a model with resnet 152 !!!
-
 # To try more than two
 class LearningMode(IntEnum):
     FINETUNING = 1
@@ -57,7 +55,7 @@ def train_model(retinanet, dataset_train, dataset_val, dataloader_train, dataloa
         retinanet.train()
         retinanet.training = True
         retinanet.module.freeze_bn()
-        
+        mAPs = {}
         epoch_loss = []
 
         for iter_num, data in enumerate(dataloader_train):
@@ -93,7 +91,7 @@ def train_model(retinanet, dataset_train, dataset_val, dataloader_train, dataloa
                 continue
         print('Evaluating dataset')
         mAP = csv_eval.evaluate(dataset_val, retinanet)
-
+        
         
         scheduler.step(np.mean(epoch_loss))    
 

@@ -174,7 +174,7 @@ def evaluate(
     all_annotations    = _get_annotations(generator)
 
     average_precisions = {}
-
+    
     for label in range(generator.num_classes()):
         false_positives = np.zeros((0,))
         true_positives  = np.zeros((0,))

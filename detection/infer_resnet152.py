@@ -13,6 +13,7 @@ import cv2
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import datasets, models, transforms
+from utils import BasicBlock, Bottleneck, BBoxTransform, ClipBoxes
 
 from dataloader import CocoDataset, CSVDataset, collater, Resizer, AspectRatioBasedSampler, Augmenter, UnNormalizer, Normalizer
 from PIL import ImageFile
@@ -50,25 +51,27 @@ def main(args=None):
 
     sampler_val = AspectRatioBasedSampler(dataset_val, batch_size=1, drop_last=False)
     dataloader_val = DataLoader(dataset_val, num_workers=1, collate_fn=collater, batch_sampler=sampler_val)
-    
+    # Model downloaded from model zoo
     pretrained_resnet_dict = torch.load(parser.model)
     # print("Pretrained resnet")
     # print(pretrained_resnet_dict.keys())
     # print("############################################    ")
-    pretrained_retinanet_model = torch.load(parser.model_retina)
-    pretrained_retinanet_dict = pretrained_retinanet_model.module.state_dict()
+    # pretrained_retinanet_model = torch.load(parser.model_retina)
+    #pretrained_retinanet_dict = pretrained_retinanet_model.module.state_dict()
+    pretrained_retinanet_dict = torch.load(parser.model_retina)
     # print("Retinanet with resnet 50 ")
     # print(pretrained_retinanet_model.state_dict().keys())
 
-    retinanet = model.resnet152(num_classes=2,)
+    retinanet = model.resnet152(num_classes=2,pretrained=True)
+    
     inference_retinanet_dict = retinanet.state_dict()
     
     # print("Retinanet with resnet 152 ")
     # print(retinanet.state_dict().keys())
     # print("#############################")
 
-    print("Type of pretrained retinanet")
-    print(type(pretrained_retinanet_model.module))
+    # print("Type of pretrained retinanet")
+    # print(type(pretrained_retinanet_model.module))
 
     print("Trying to change parameters")
     for name, param in retinanet.named_parameters():
@@ -86,12 +89,12 @@ def main(args=None):
             else:
                 # We are in ResNet or FPN
                 inference_retinanet_dict[name] = pretrained_resnet_dict[name]
-
+    print(inference_retinanet_dict['layer2.7.conv2.weight'])
+    print(pretrained_resnet_dict['layer2.7.conv2.weight'])
 
     print("Parameters switched")
-    retinanet.load_state_dict(inference_retinanet_dict)
-	# Print model to see what resnet backbone uses
-    print(retinanet)
+    #retinanet.load_state_dict(inference_retinanet_dict, strict=True)
+    
     use_gpu = True
 
     if use_gpu:
@@ -122,7 +125,7 @@ def main(args=None):
             # This low threshold is to check the feature proposal network (resnet)
             print("Scores")
             print(scores)
-            idxs = np.where(scores>0.1)
+            idxs = np.where(scores>0.3)
             print("idxs")
             print(idxs)
             # TODO: figure out why plotting the raw bboxes that it gives as output does not work. If we save the image as a .npy and then visualize it is correct, but don't know why

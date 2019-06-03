@@ -56,6 +56,7 @@ def train_model(retinanet, dataset_train, dataset_val, dataloader_train, dataloa
         retinanet.training = True
         retinanet.module.freeze_bn()
         mAPs = {}
+        train_summary = []
         epoch_loss = []
 
         for iter_num, data in enumerate(dataloader_train):
@@ -90,12 +91,13 @@ def train_model(retinanet, dataset_train, dataset_val, dataloader_train, dataloa
                 print(e)
                 continue
         print('Evaluating dataset')
-        mAP = csv_eval.evaluate(dataset_val, retinanet)
-        
-        
+        mAP,p_r = csv_eval.evaluate(dataset_val, retinanet)
+        train_summary.append((mAP,p_r))
+        print(train_summary)
+        print(mAP)
         scheduler.step(np.mean(epoch_loss))    
-
-        torch.save(retinanet, '/imatge/ppalau/work/Fishes/model_weights/2/fishes_retinanet_{}.pt'.format(epoch_num))
+        f_score = 2 * (p_r[0]*p_r[1])/(p_r[0] + p_r[1])
+        torch.save(retinanet, '/imatge/ppalau/work/Fishes/model_weights/4/fishes_retinanet_epoch_{}_F_{}.pt'.format(epoch_num, f_score))
 
     retinanet.eval()
 
@@ -178,8 +180,11 @@ def main(args=None):
         # Freeze ResNet and FPN layers and train the rest 
         for name, param in retinanet.module.named_parameters():
             if(param.requires_grad):
-                if(not (("regressionModel" in name) or ("classificationModel" in name))):
+                print(name)
+                if(not (("regressionModel.output" in name) or ("regressionModel.conv4" in name) or ("classificationModel.output" in name) or ("classificationModel.conv3" in name) or ("classificationModel.conv4" in name))):
                     param.requires_grad = False
+                else:
+                    print("This layer will be retrained: " + str(name))
         train_model(retinanet, dataset_train, dataset_val, dataloader_train,dataloader_val)
 
 if __name__ == '__main__':

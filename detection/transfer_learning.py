@@ -50,13 +50,15 @@ def train_model(retinanet, dataset_train, dataset_val, dataloader_train, dataloa
     epochs = 500
     print('Num training images: {}'.format(len(dataset_train)))
 
+    mAPs = {}
+    precisions = []
+    recalls = []
     for epoch_num in range(epochs):
 
         retinanet.train()
         retinanet.training = True
         retinanet.module.freeze_bn()
-        mAPs = {}
-        train_summary = []
+        
         epoch_loss = []
 
         for iter_num, data in enumerate(dataloader_train):
@@ -92,12 +94,16 @@ def train_model(retinanet, dataset_train, dataset_val, dataloader_train, dataloa
                 continue
         print('Evaluating dataset')
         mAP,p_r = csv_eval.evaluate(dataset_val, retinanet)
-        train_summary.append((mAP,p_r))
-        print(train_summary)
-        print(mAP)
+
         scheduler.step(np.mean(epoch_loss))    
-        f_score = 2 * (p_r[0]*p_r[1])/(p_r[0] + p_r[1])
-        torch.save(retinanet, '/imatge/ppalau/work/Fishes/model_weights/4/fishes_retinanet_epoch_{}_F_{}.pt'.format(epoch_num, f_score))
+        # p_r is a dictionary {0:(precision_other, recall_other), 1: (precision_serranus, recall_serranus)}
+        f_score = 2 * (np.average(p_r[1][0])*np.average(p_r[1][1]))/(np.average(p_r[1][0]) + np.average(p_r[1][1]))
+        precisions.append(p_r[1][0])
+        recalls.append(p_r[1][1])
+        print("f_score = {:.2f}".format(f_score))
+        print(precisions)
+        print(recalls)
+        torch.save(retinanet, '/imatge/ppalau/work/Fishes/model_weights/5/fishes_retinanet_epoch_{}_F_{:.2f}.pt'.format(epoch_num, f_score))
 
     retinanet.eval()
 
@@ -181,7 +187,7 @@ def main(args=None):
         for name, param in retinanet.module.named_parameters():
             if(param.requires_grad):
                 print(name)
-                if(not (("regressionModel.output" in name) or ("regressionModel.conv4" in name) or ("classificationModel.output" in name) or ("classificationModel.conv3" in name) or ("classificationModel.conv4" in name))):
+                if(not (("regressionModel.output" in name) or ("classificationModel.output" in name) or ("classificationModel.conv4" in name))):
                     param.requires_grad = False
                 else:
                     print("This layer will be retrained: " + str(name))

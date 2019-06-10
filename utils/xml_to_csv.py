@@ -18,11 +18,12 @@ def xml_to_csv(path):
                    'CalaEgos3L_0016', 'CalaEgos3L_0047', 'CalaEgos3L_0049', 'CalaEgos3L_0081', 'CalaEgos3L_0088',\
                    'CalaEgos5L_0008','CalaEgos5L_0066','CalaEgos5L_0074',\
                    'CalaEgos6L_0053',\
+                   'CalaEgos3L_0034', 'CalaEgos3L_0064', 'CalaEgos3L_0071'\
                    'CalaEgos8L_0010', 'CalaEgos8L_0035','CalaEgos8L_0054', 'CalaEgos8L_0068', 'CalaEgos8L_0096', 'CalaEgos8L_0097',\
                    'CalaEgos9L_0066', 'CalaEgos9L_0069', 'CalaEgos9L_0094']
-    names_val = ['CalaEgos1L_0071', 'CalaEgos3L_0034', 'CalaEgos3L_0064', 'CalaEgos3L_0071',\
+    names_val = ['CalaEgos1L_0071',\
         'CalaEgos4L_0076', 'CalaEgos8L_0080']
-
+        
     for i, xml_file in enumerate(glob.glob(path + '/*.xml')):
         filename = xml_file.split('\\')
         print(filename)

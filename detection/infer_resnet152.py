@@ -53,15 +53,10 @@ def main(args=None):
     dataloader_val = DataLoader(dataset_val, num_workers=1, collate_fn=collater, batch_sampler=sampler_val)
     # Model downloaded from model zoo
     pretrained_resnet_dict = torch.load(parser.model)
-    # print("Pretrained resnet")
-    # print(pretrained_resnet_dict.keys())
-    # print("############################################    ")
     # pretrained_retinanet_model = torch.load(parser.model_retina)
     #pretrained_retinanet_dict = pretrained_retinanet_model.module.state_dict()
     pretrained_retinanet_dict = torch.load(parser.model_retina)
-    # print("Retinanet with resnet 50 ")
-    # print(pretrained_retinanet_model.state_dict().keys())
-
+    
     retinanet = model.resnet152(num_classes=2,pretrained=True)
     
     inference_retinanet_dict = retinanet.state_dict()
@@ -89,8 +84,7 @@ def main(args=None):
             else:
                 # We are in ResNet or FPN
                 inference_retinanet_dict[name] = pretrained_resnet_dict[name]
-    print(inference_retinanet_dict['layer2.7.conv2.weight'])
-    print(pretrained_resnet_dict['layer2.7.conv2.weight'])
+  
 
     print("Parameters switched")
     #retinanet.load_state_dict(inference_retinanet_dict, strict=True)

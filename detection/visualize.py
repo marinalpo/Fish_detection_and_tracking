@@ -27,7 +27,7 @@ srun --mem 8G --gres=gpu:1 python visualize.py --dataset csv --csv_classes /imat
 """
 
 print('CUDA available: {}'.format(torch.cuda.is_available()))
-
+print("IEPa")
 # Malisiewicz et al.
 def non_max_suppression_fast(boxes, overlapThresh):
 	"""
@@ -120,7 +120,7 @@ def main(args=None):
 		pickle.Unpickler = partial(pickle.Unpickler, encoding="latin1")
 		retinanet = torch.load(parser.model, pickle_module=pickle)
 	# Print model to see what resnet backbone uses
-	print(retinanet)
+	
 	use_gpu = True
 
 	if use_gpu:
@@ -137,7 +137,11 @@ def main(args=None):
 		cv2.putText(image, caption, (b[0], b[1] - 10), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1)
 
 	for idx, data in enumerate(dataloader_val):
-
+		img_infer = data['img']
+		print("Index")
+		print(idx)
+		print("Data")
+		print(data)
 		with torch.no_grad():
 			st = time.time()
 			scores, classification, transformed_anchors = retinanet(data['img'].cuda().float())
@@ -151,7 +155,7 @@ def main(args=None):
 			# This low threshold is to check the feature proposal network (resnet)
 			print("Scores")
 			print(scores)
-			idxs = np.where(scores>0.10)
+			idxs = np.where(scores>0.07)
 			print("idxs")
 			print(idxs)
 			# TODO: figure out why plotting the raw bboxes that it gives as output does not work. If we save the image as a .npy and then visualize it is correct, but don't know why

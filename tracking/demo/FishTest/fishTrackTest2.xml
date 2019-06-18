@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<annotations>
+  <version>1.1</version>
+  <meta>
+    <task>
+      <id>3</id>
+      <name>fishTrackTest1</name>
+      <size>451</size>
+      <mode>annotation</mode>
+      <overlap>0</overlap>
+      <bugtracker></bugtracker>
+      <flipped>False</flipped>
+      <created>2019-04-02 20:03:01.741862+03:00</created>
+      <updated>2019-04-03 16:32:08.606134+03:00</updated>
+      <source>451 images: 0001.jpg, 0002.jpg, ...</source>
+      <labels>
+        <label>
+          <name>fish</name>
+          <attributes>
+          </attributes>
+        </label>
+      </labels>
+      <segments>
+        <segment>
+          <id>3</id>
+          <start>0</start>
+          <stop>450</stop>
+          <url>http://localhost:8080/?id=3</url>
+        </segment>
+      </segments>
+      <owner>
+        <username>django</username>
+        <email>benjamin.dorra@ensea.fr</email>
+      </owner>
+    </task>
+    <dumped>2019-04-03 16:32:17.438605+03:00</dumped>
+  </meta>
+  <image id="102" name="0103.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1898.43" ytl="160.53" xbr="1920.00" ybr="194.74" occluded="0">
+    </box>
+  </image>
+  <image id="103" name="0104.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1877.38" ytl="147.38" xbr="1920.00" ybr="205.27" occluded="0">
+    </box>
+  </image>
+  <image id="104" name="0105.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1839.22" ytl="146.45" xbr="1919.49" ybr="216.19" occluded="0">
+    </box>
+  </image>
+  <image id="105" name="0106.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1819.50" ytl="146.45" xbr="1919.49" ybr="229.30" occluded="0">
+    </box>
+  </image>
+  <image id="106" name="0107.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1789.20" ytl="146.45" xbr="1919.49" ybr="243.80" occluded="0">
+    </box>
+  </image>
+  <image id="107" name="0108.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1769.50" ytl="146.45" xbr="1919.49" ybr="251.70" occluded="0">
+    </box>
+  </image>
+  <image id="108" name="0109.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1745.80" ytl="146.45" xbr="1919.49" ybr="258.30" occluded="0">
+    </box>
+  </image>
+  <image id="109" name="0110.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1727.40" ytl="146.45" xbr="1919.49" ybr="266.20" occluded="0">
+    </box>
+  </image>
+  <image id="110" name="0111.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1710.30" ytl="146.45" xbr="1919.49" ybr="275.40" occluded="0">
+    </box>
+  </image>
+  <image id="111" name="0112.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1687.90" ytl="146.45" xbr="1919.49" ybr="283.30" occluded="0">
+    </box>
+  </image>
+  <image id="112" name="0113.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1676.10" ytl="146.45" xbr="1919.49" ybr="293.80" occluded="0">
+    </box>
+  </image>
+  <image id="113" name="0114.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1653.70" ytl="146.45" xbr="1919.49" ybr="301.80" occluded="0">
+    </box>
+  </image>
+  <image id="114" name="0115.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1644.50" ytl="146.45" xbr="1919.49" ybr="305.70" occluded="0">
+    </box>
+  </image>
+  <image id="115" name="0116.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1630.00" ytl="146.45" xbr="1919.49" ybr="312.30" occluded="0">
+    </box>
+  </image>
+  <image id="116" name="0117.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1618.20" ytl="146.45" xbr="1919.49" ybr="326.80" occluded="0">
+    </box>
+  </image>
+  <image id="117" name="0118.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1595.80" ytl="146.45" xbr="1919.49" ybr="341.20" occluded="0">
+    </box>
+  </image>
+  <image id="118" name="0119.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1577.40" ytl="146.45" xbr="1919.49" ybr="363.60" occluded="0">
+    </box>
+  </image>
+  <image id="119" name="0120.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1553.70" ytl="146.45" xbr="1919.49" ybr="378.10" occluded="0">
+    </box>
+  </image>
+  <image id="120" name="0121.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1530.00" ytl="146.45" xbr="1919.49" ybr="396.50" occluded="0">
+    </box>
+  </image>
+  <image id="121" name="0122.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1514.30" ytl="146.45" xbr="1919.49" ybr="420.20" occluded="0">
+    </box>
+  </image>
+  <image id="122" name="0123.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1506.30" ytl="171.50" xbr="1911.60" ybr="438.60" occluded="0">
+    </box>
+  </image>
+  <image id="123" name="0124.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1489.20" ytl="195.10" xbr="1880.00" ybr="463.60" occluded="0">
+    </box>
+  </image>
+  <image id="124" name="0125.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1480.00" ytl="207.00" xbr="1851.10" ybr="476.80" occluded="0">
+    </box>
+  </image>
+  <image id="125" name="0126.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1462.89" ytl="218.84" xbr="1833.99" ybr="488.64" occluded="0">
+    </box>
+  </image>
+  <image id="126" name="0127.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1455.00" ytl="220.20" xbr="1805.00" ybr="516.27" occluded="0">
+    </box>
+  </image>
+  <image id="127" name="0128.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1441.84" ytl="232.00" xbr="1765.60" ybr="534.69" occluded="0">
+    </box>
+  </image>
+  <image id="128" name="0129.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1427.37" ytl="238.60" xbr="1756.40" ybr="555.75" occluded="0">
+    </box>
+  </image>
+  <image id="129" name="0130.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1407.60" ytl="260.90" xbr="1726.10" ybr="579.40" occluded="0">
+    </box>
+  </image>
+  <image id="130" name="0131.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1391.84" ytl="275.40" xbr="1699.80" ybr="611.01" occluded="0">
+    </box>
+  </image>
+  <image id="131" name="0132.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1378.68" ytl="300.40" xbr="1659.00" ybr="632.06" occluded="0">
+    </box>
+  </image>
+  <image id="132" name="0133.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1372.11" ytl="320.20" xbr="1641.90" ybr="649.17" occluded="0">
+    </box>
+  </image>
+  <image id="133" name="0134.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1357.63" ytl="330.70" xbr="1632.70" ybr="670.22" occluded="0">
+    </box>
+  </image>
+  <image id="134" name="0135.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1344.50" ytl="333.30" xbr="1627.40" ybr="691.30" occluded="0">
+    </box>
+  </image>
+  <image id="135" name="0136.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1337.92" ytl="354.35" xbr="1620.82" ybr="712.35" occluded="0">
+    </box>
+  </image>
+  <image id="136" name="0137.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1330.03" ytl="370.14" xbr="1612.93" ybr="728.14" occluded="0">
+    </box>
+  </image>
+  <image id="137" name="0138.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1316.87" ytl="392.51" xbr="1599.77" ybr="750.51" occluded="0">
+    </box>
+  </image>
+  <image id="138" name="0139.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1310.29" ytl="405.67" xbr="1593.19" ybr="763.67" occluded="0">
+    </box>
+  </image>
+  <image id="139" name="0140.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1302.40" ytl="418.83" xbr="1561.61" ybr="775.50" occluded="0">
+    </box>
+  </image>
+  <image id="140" name="0141.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1291.87" ytl="433.30" xbr="1524.80" ybr="791.30" occluded="0">
+    </box>
+  </image>
+  <image id="141" name="0142.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1280.03" ytl="457.00" xbr="1528.70" ybr="812.35" occluded="0">
+    </box>
+  </image>
+  <image id="142" name="0143.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1276.08" ytl="484.60" xbr="1519.50" ybr="828.14" occluded="0">
+    </box>
+  </image>
+  <image id="143" name="0144.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1270.82" ytl="501.80" xbr="1515.60" ybr="845.25" occluded="0">
+    </box>
+  </image>
+  <image id="144" name="0145.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1262.90" ytl="529.40" xbr="1509.00" ybr="865.00" occluded="0">
+    </box>
+  </image>
+  <image id="145" name="0146.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1257.66" ytl="543.90" xbr="1497.20" ybr="871.56" occluded="0">
+    </box>
+  </image>
+  <image id="146" name="0147.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1244.50" ytl="558.35" xbr="1495.84" ybr="900.51" occluded="0">
+    </box>
+  </image>
+  <image id="147" name="0148.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1222.13" ytl="571.51" xbr="1473.47" ybr="913.67" occluded="0">
+    </box>
+  </image>
+  <image id="148" name="0149.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1212.92" ytl="580.72" xbr="1464.26" ybr="922.88" occluded="0">
+    </box>
+  </image>
+  <image id="149" name="0150.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1210.29" ytl="587.29" xbr="1461.63" ybr="929.46" occluded="0">
+    </box>
+  </image>
+  <image id="150" name="0151.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1193.18" ytl="592.53" xbr="1444.53" ybr="943.93" occluded="0">
+    </box>
+  </image>
+  <image id="151" name="0152.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1202.39" ytl="612.30" xbr="1453.74" ybr="962.40" occluded="0">
+    </box>
+  </image>
+  <image id="152" name="0153.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1183.97" ytl="620.19" xbr="1435.32" ybr="962.35" occluded="0">
+    </box>
+  </image>
+  <image id="153" name="0154.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1195.81" ytl="633.30" xbr="1447.16" ybr="979.46" occluded="0">
+    </box>
+  </image>
+  <image id="154" name="0155.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1186.60" ytl="642.56" xbr="1437.95" ybr="984.72" occluded="0">
+    </box>
+  </image>
+  <image id="155" name="0156.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1172.13" ytl="647.80" xbr="1423.47" ybr="1008.40" occluded="0">
+    </box>
+  </image>
+  <image id="156" name="0157.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1168.18" ytl="664.93" xbr="1419.53" ybr="1020.20" occluded="0">
+    </box>
+  </image>
+  <image id="157" name="0158.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1169.50" ytl="676.77" xbr="1420.84" ybr="1018.93" occluded="0">
+    </box>
+  </image>
+  <image id="158" name="0159.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1174.76" ytl="686.00" xbr="1426.11" ybr="1037.35" occluded="0">
+    </box>
+  </image>
+  <image id="159" name="0160.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1149.76" ytl="708.35" xbr="1401.11" ybr="1050.51" occluded="0">
+    </box>
+  </image>
+  <image id="160" name="0161.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1144.50" ytl="726.77" xbr="1395.84" ybr="1068.93" occluded="0">
+    </box>
+  </image>
+  <image id="161" name="0162.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1144.50" ytl="737.29" xbr="1395.84" ybr="1079.46" occluded="0">
+    </box>
+  </image>
+  <image id="162" name="0163.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1173.40" ytl="759.70" xbr="1377.40" ybr="1078.14" occluded="0">
+    </box>
+  </image>
+  <image id="163" name="0164.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1182.70" ytl="774.10" xbr="1373.50" ybr="1078.14" occluded="0">
+    </box>
+  </image>
+  <image id="164" name="0165.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1190.60" ytl="788.60" xbr="1369.50" ybr="1078.14" occluded="0">
+    </box>
+  </image>
+  <image id="165" name="0166.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1190.60" ytl="804.40" xbr="1369.50" ybr="1078.14" occluded="0">
+    </box>
+  </image>
+  <image id="166" name="0167.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1190.60" ytl="820.20" xbr="1364.20" ybr="1078.14" occluded="0">
+    </box>
+  </image>
+  <image id="167" name="0168.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1190.60" ytl="838.60" xbr="1364.20" ybr="1078.14" occluded="0">
+    </box>
+  </image>
+  <image id="168" name="0169.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1190.60" ytl="855.70" xbr="1357.70" ybr="1078.14" occluded="0">
+    </box>
+  </image>
+  <image id="169" name="0170.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1190.60" ytl="871.50" xbr="1352.40" ybr="1078.14" occluded="0">
+    </box>
+  </image>
+  <image id="170" name="0171.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1190.60" ytl="907.00" xbr="1369.50" ybr="1078.14" occluded="0">
+    </box>
+  </image>
+  <image id="171" name="0172.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1190.60" ytl="946.50" xbr="1335.30" ybr="1078.14" occluded="0">
+    </box>
+  </image>
+  <image id="172" name="0173.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1224.80" ytl="966.20" xbr="1331.30" ybr="1078.14" occluded="0">
+    </box>
+  </image>
+  <image id="173" name="0174.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1236.70" ytl="975.40" xbr="1328.70" ybr="1078.14" occluded="0">
+    </box>
+  </image>
+  <image id="174" name="0175.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1241.90" ytl="997.80" xbr="1322.10" ybr="1078.14" occluded="0">
+    </box>
+  </image>
+  <image id="175" name="0176.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1256.40" ytl="1018.90" xbr="1322.10" ybr="1078.14" occluded="0">
+    </box>
+  </image>
+  <image id="176" name="0177.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1253.70" ytl="1034.60" xbr="1322.10" ybr="1078.14" occluded="0">
+    </box>
+  </image>
+  <image id="177" name="0178.jpg" width="1920" height="1080">
+    <box label="fish" xtl="1266.90" ytl="1037.30" xbr="1316.80" ybr="1078.14" occluded="0">
+    </box>
+  </image>
+</annotations>

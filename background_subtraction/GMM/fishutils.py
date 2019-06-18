@@ -1,14 +1,15 @@
 import cv2
 import skimage.morphology as morph
 import numpy as np
-from scipy.spatial import distance as dist
+from scipy.spatial import distance
 from collections import OrderedDict
-import matplotlib as plt
+from pylab import *
+import matplotlib.image as mpimg
 
 
 #  Reference: https://www.pyimagesearch.com/2018/07/23/simple-object-tracking-with-opencv/
 class CentroidTracker():
-    def __init__(self, maxDisappeared = 15):
+    def __init__(self, maxDisappeared = 25):
         self.nextObjectID = 0  # counter used to assign unique IDs to each object
         self.objects = OrderedDict()  # Dictionary where:
             # KEY: Object ID
@@ -57,7 +58,7 @@ class CentroidTracker():
             for i in range(len(inputCoordinates)):
                 inputCentroids.append(inputCoordinates[i][0])
 
-            D = dist.cdist(np.array(objectCentroids), inputCentroids)
+            D = distance.cdist(objectCentroids, inputCentroids)
 
             rows = D.min(axis=1).argsort()
             cols = D.argmin(axis=1)[rows]

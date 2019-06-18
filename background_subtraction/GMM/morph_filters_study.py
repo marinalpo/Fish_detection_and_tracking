@@ -1,12 +1,12 @@
 import cv2
 import skimage.morphology as morph
-from Display_Images import *
+from fishutils import *
 import matplotlib.image as mpimg
 
 video = ['Andratx8_6L', 'Andratx9_6L', 'CalaEgos5L']
-num_video = 0
-dir_name = '/Users/marinaalonsopoal/Documents/Telecos/Master/Research/Videos/'+video[num_video]+'/'
-num_frame = 220
+num_video = 2
+dir_name = '/Users/marinaalonsopoal/Documents/Telecos/Master/Introduction to Research/Videos/'+video[num_video]+'/'
+num_frame = 150
 
 ori = mpimg.imread(dir_name + 'Originals/Original_Frame_' + str(num_frame) + '.jpg')
 back = mpimg.imread(dir_name + 'Backgrounds/Background_Frame_' + str(num_frame) + '.jpg')
@@ -14,7 +14,7 @@ back = mpimg.imread(dir_name + 'Backgrounds/Background_Frame_' + str(num_frame) 
 ret, binary = cv2.threshold(back, 127, 255, cv2.THRESH_BINARY)
 
 # Step 1: Reconstruction with Opening to remove little objects
-kernel = morph.disk(3)
+kernel = morph.disk(6)
 ope1 = morph.binary_opening(binary, kernel)
 out1 = 255 * morph.reconstruction(ope1, binary)
 out1 = out1.astype('uint8')
@@ -25,7 +25,7 @@ out2 = 255 * morph.binary_closing(out1, kernel2)
 out2 = out2.astype('uint8')
 
 # Step 3: Reconstruction with Opening to remove little objects
-kernel3 = morph.disk(5)
+kernel3 = morph.disk(8)
 ope2 = morph.binary_opening(out2, kernel3)
 ope2 = 255 * ope2
 ope2 = ope2.astype('uint8')
@@ -41,7 +41,8 @@ out4 = morph.binary_closing(out3, kernel4)
 hull = 255 * morph.convex_hull_object(out4)
 hull = hull.astype('uint8')
 
+Display_4_Images(ori, ori, back,hull,'ori', 'ori','Detected Foreground','Processed Foreground')
 
-Display_6_Images(back, out1, out2, out3, out4, hull, 'Detected Foreground',
-                 'Opening by Reconstruction', 'Closing', 'Opening by Reconstruction',
-                 'Closing', 'Hulls', 'Video ' + str(video[num_video]) + ' Frame #' + str(num_frame))
+# Display_6_Images(back, out1, out2, out3, out4, hull, 'Detected Foreground',
+#                  'Opening by Reconstruction', 'Closing', 'Opening by Reconstruction',
+#                  'Closing', 'Hulls', 'Video ' + str(video[num_video]) + ' Frame #' + str(num_frame))

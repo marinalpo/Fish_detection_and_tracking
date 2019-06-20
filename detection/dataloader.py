@@ -156,6 +156,7 @@ class CSVDataset(Dataset):
             raise_from(ValueError('invalid CSV annotations file: {}: {}'.format(self.train_file, e)), None)
         self.image_names = list(self.image_data.keys())
 
+    
     def _parse(self, value, function, fmt):
         """
         Parse a string into a value, and format a nice ValueError if it fails.
@@ -200,6 +201,11 @@ class CSVDataset(Dataset):
 
     def __len__(self):
         return len(self.image_names)
+
+    def transform_doit(self, annot, img):
+        sample = {'img': img, 'annot': annot}
+        sample = self.transform(sample)
+        return sample
 
     def __getitem__(self, idx):
 

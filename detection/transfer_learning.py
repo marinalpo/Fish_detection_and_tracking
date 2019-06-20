@@ -34,6 +34,8 @@ from functools import partial
 I tried to train the network importing the whole model but it did not work. Now in this script I will try to load the state_dict weights and retrain them.
 """ 
 
+# TODO: try loading a model with resnet 152 !!!
+
 # To try more than two
 class LearningMode(IntEnum):
     FINETUNING = 1
@@ -47,12 +49,9 @@ def train_model(retinanet, dataset_train, dataset_val, dataloader_train, dataloa
     loss_hist = collections.deque(maxlen=500)
 
     retinanet.module.freeze_bn()
-    epochs = 500
+    epochs = 120
     print('Num training images: {}'.format(len(dataset_train)))
 
-    mAPs = {}
-    precisions = []
-    recalls = []
     for epoch_num in range(epochs):
 
         retinanet.train()
@@ -93,17 +92,12 @@ def train_model(retinanet, dataset_train, dataset_val, dataloader_train, dataloa
                 print(e)
                 continue
         print('Evaluating dataset')
-        mAP,p_r = csv_eval.evaluate(dataset_val, retinanet)
+        mAP = csv_eval.evaluate(dataset_val, retinanet)
 
+        
         scheduler.step(np.mean(epoch_loss))    
-        # p_r is a dictionary {0:(precision_other, recall_other), 1: (precision_serranus, recall_serranus)}
-        f_score = 2 * (np.average(p_r[1][0])*np.average(p_r[1][1]))/(np.average(p_r[1][0]) + np.average(p_r[1][1]))
-        precisions.append(p_r[1][0])
-        recalls.append(p_r[1][1])
-        print("f_score = {:.2f}".format(f_score))
-        print(precisions)
-        print(recalls)
-        torch.save(retinanet, '/imatge/ppalau/work/Fishes/model_weights/5/fishes_retinanet_epoch_{}_F_{:.2f}.pt'.format(epoch_num, f_score))
+
+        torch.save(retinanet, 'fishes_retinanet_{}.pt'.format(epoch_num))
 
     retinanet.eval()
 
@@ -186,11 +180,8 @@ def main(args=None):
         # Freeze ResNet and FPN layers and train the rest 
         for name, param in retinanet.module.named_parameters():
             if(param.requires_grad):
-                print(name)
-                if(not (("regressionModel.output" in name) or ("classificationModel.output" in name) or ("classificationModel.conv4" in name))):
+                if(not (("regressionModel" in name) or ("classificationModel" in name))):
                     param.requires_grad = False
-                else:
-                    print("This layer will be retrained: " + str(name))
         train_model(retinanet, dataset_train, dataset_val, dataloader_train,dataloader_val)
 
 if __name__ == '__main__':

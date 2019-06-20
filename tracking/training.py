@@ -30,6 +30,7 @@ AREA_CUTOFF = 0.25
 BATCH_SIZE = 2
 UNROLL_SIZE = 2
 NUM_EPOCHS = 1
+DEBUG = False
 
 ##class alovDataset(torch.utils.data.Dataset):
 ##    def __init__(self):
@@ -76,6 +77,7 @@ class alovDataset():
     def __init__(self, batch_size):
         self.batch_size = batch_size
         self.seed = random.seed()
+        self.transform = transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         labels = sorted(glob.glob(os.path.join(basedir, 'alov300', 'alov300++_rectangleAnnotation_full', '*', '*')))
         self.len = len(labels)
         self.image_paths = []
@@ -89,12 +91,22 @@ class alovDataset():
             image_paths = sorted(glob.glob(os.path.join(basedir, 'alov300', 'imagedata++', resplit[1], os.path.splitext(split[1])[0], '*')))
             annotated = []
             current_annotated = 0
-            #
+            # Extract the image paths
             for i, image_path in enumerate(image_paths):
                 if current_annotated<annot.shape[0] and i+1 == int(annot[current_annotated,0]):
                     annotated.append(image_path)
                     current_annotated+=1
-            self.labels.append(annot[:,[3,4,7,8]])
+            # Add the annotation
+            # and make sure the corners have the right values
+            # to avoid problems during the extraction
+            annot = annot[:,[3,4,7,8]]
+            for i, box in enumerate(annot):
+                if box[2]<box[0]:
+                    annot[i][0], annot[i][2] = box[2], box[0]
+                if box[3]<box[1]:
+                    annot[i][1], annot[i][3] = box[3], box[1]
+            self.labels.append(annot)
+            # Add the image paths
             self.image_paths.append(annotated)
         
     def __getitem(self, index):
@@ -107,7 +119,7 @@ class alovDataset():
             # Tracker expects RGB, but opencv loads BGR.
             imageRGB = image[:,:,::-1]
             #images.append(imageRGB)
-            #zero padding to have constant vectors
+            #zero padding to have constant vectors (1080,1920,3)
             pad_image = np.pad(np.array(imageRGB), ((0,1080-imageRGB.shape[0]),(0,1920-imageRGB.shape[1]), (0,0)), 'constant')
             images.append(pad_image)
             
@@ -319,10 +331,10 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=1):
     val_acc_history = []
 
     best_model_wts = copy.deepcopy(model.state_dict())
-    
+
     #torch.autograd.set_detect_anomaly(True)
 
-##    cv2.namedWindow('Image', cv2.WINDOW_NORMAL)
+    #cv2.namedWindow('Image', cv2.WINDOW_NORMAL)
     
     for epoch in range(num_epochs):
         print('Epoch {}/{}'.format(epoch, num_epochs - 1))
@@ -340,15 +352,6 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=1):
             inputs_sequences, labels_sequences = dataloaders.getbatch()
             for num_batch, (inputs_sequence, labels_sequence) in enumerate(zip(inputs_sequences, labels_sequences)):
                 print("batch: {}/{}".format(num_batch, len(labels_sequences)-1))
-##                print(len(inputs_sequence))
-##                for image, label in zip(inputs_sequence, labels_sequence):
-##                    print(label)
-##                    cv2.rectangle(image,
-##                        (int(label[0]), int(label[1])),
-##                        (int(label[2]), int(label[3])),
-##                        [0,0,255], 2)
-##                    cv2.imshow('Image', image)
-##                    cv2.waitKey(0)
                 
                 # zero the parameter gradients
                 optimizer.zero_grad()
@@ -366,20 +369,33 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=1):
                 labels_input_vec = labels_sequence[:-1]
                 for i, labels_input in enumerate(labels_input_vec):
                     # get the input values
-                    cropped_input0, _ = im_util.get_cropped_input(inputs_sequence[i], labels_input, CROP_PAD, CROP_SIZE)
+                    cropped_input0, pastBBoxPadded = im_util.get_cropped_input(inputs_sequence[i], labels_input, CROP_PAD, CROP_SIZE)
                     cropped_input1, _ = im_util.get_cropped_input(inputs_sequence[i+1], labels_input, CROP_PAD, CROP_SIZE)
                     inputs_temp[i] = np.concatenate((cropped_input0, cropped_input1)).reshape(2, 3, CROP_SIZE, CROP_SIZE)
                     # fit the output labels to the network output
                     labels_output_temp[i] = bb_util.to_crop_coordinate_system(
-                        labels_sequence[i+1], pastBBoxPadded, CROP_PAD, CROP_SIZE)
-                    #print("previous image position: ", labels_input)
-                    #print("original output label: ", labels_sequence[i+1])
-                    #print("to_crop output label: ", labels_output_temp[i])
-                    #print("reconverted output label: ",
-                    #      bb_util.from_crop_coordinate_system(labels_output_temp[i],
-                    #                                        pastBBoxPadded,
-                    #                                        CROP_PAD,
-                    #                                        CROP_SIZE))
+                        labels_sequence[i+1], pastBBoxPadded, 1, 1)
+                    if DEBUG:
+                        print("previous image position: ", labels_input)
+                        print("original output label: ", labels_sequence[i+1])
+                        print("to_crop output label: ", labels_output_temp[i])
+                        print("reconverted output label: ",
+                              bb_util.from_crop_coordinate_system(labels_output_temp[i],
+                                                                pastBBoxPadded,
+                                                                1,1))
+                        cv2.namedWindow('Image', cv2.WINDOW_NORMAL)
+                        cv2.namedWindow('Crop', cv2.WINDOW_NORMAL)
+                        cv2.rectangle(inputs_sequence[i],
+                            (int(labels_input[0]), int(labels_input[1])),
+                            (int(labels_input[2]), int(labels_input[3])),
+                            [0,0,255], 2)
+                        cv2.rectangle(cropped_input1,
+                            (int(labels_output_temp[i,0][0]), int(labels_output_temp[i,0][1])),
+                            (int(labels_output_temp[i,0][2]), int(labels_output_temp[i,0][3])),
+                            [0,0,255], 2)
+                        cv2.imshow('Image', inputs_sequence[i])
+                        cv2.imshow('Crop', cropped_input1)
+                        cv2.waitKey(0)
                 # Transfer to the gpu memory only once for each sequence (very slow operation)
                 # Actually this seems to cause memory issues, transfer shall be
                 # done once at a time
@@ -402,9 +418,9 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=1):
                         with torch.set_grad_enabled(phase == 'train'):
                             outputs, s1, s2 = model(inputs=inputs,batch_size=1,
                                                     prevLstmState=lstmState)
-                            print("outputs: ", outputs)
+                            print("outputs: ", outputs/10.0)
                             lstmState = [s1[0], s1[1], s2[0], s2[1]]
-                            loss = criterion(outputs, labels_output)
+                            loss = criterion(outputs/10.0 , labels_output)
                             print("loss: ", loss.item())
 
                             # backward + optimize only if in training phase

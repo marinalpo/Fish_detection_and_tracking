@@ -27,7 +27,7 @@ USE_NETWORK_PROB = 0.8
 REAL_MOTION_PROB = 1.0 / 8
 AREA_CUTOFF = 0.25
 
-BATCH_SIZE = 1
+BATCH_SIZE = 2
 UNROLL_SIZE = 2
 NUM_EPOCHS = 1
 
@@ -99,9 +99,9 @@ class alovDataset():
         
     def __getitem(self, index):
         images = []
-        print("test")
-        print(self.image_paths[index][0])
-        print(len(self.image_paths[index]))
+        #print("test")
+        #print(self.image_paths[index][0])
+        #print(len(self.image_paths[index]))
         for image_path in self.image_paths[index]:
             image = cv2.imread(image_path)
             # Tracker expects RGB, but opencv loads BGR.
@@ -319,7 +319,8 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=1):
     val_acc_history = []
 
     best_model_wts = copy.deepcopy(model.state_dict())
-    best_acc = 0.0
+    
+    #torch.autograd.set_detect_anomaly(True)
 
 ##    cv2.namedWindow('Image', cv2.WINDOW_NORMAL)
     
@@ -329,19 +330,16 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=1):
 
         # Each epoch has a training and validation phase
         for phase in ['train', 'val']:
+            print("phase: ", phase)
             if phase == 'train':
                 model.train()  # Set model to training mode
             else:
                 model.eval()   # Set model to evaluate mode
-
             running_loss = 0.0
-            running_corrects = 0
-            print("TOTAAAAAAAAALLLLLLLLLLLLL")
             # Iterate over data.
             inputs_sequences, labels_sequences = dataloaders.getbatch()
-            for inputs_sequence, labels_sequence in zip(inputs_sequences, labels_sequences):
-                print("AAAAAAAAAAAAAAAAAAAH")
-                print(phase)
+            for num_batch, (inputs_sequence, labels_sequence) in enumerate(zip(inputs_sequences, labels_sequences)):
+                print("batch: {}/{}".format(num_batch, len(labels_sequences)-1))
 ##                print(len(inputs_sequence))
 ##                for image, label in zip(inputs_sequence, labels_sequence):
 ##                    print(label)
@@ -363,8 +361,8 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=1):
                 len_sequence = labels_sequence.shape[0]
                 inputs_temp = np.zeros([len_sequence-1, 2, 3, CROP_SIZE, CROP_SIZE])
                 inputs_vec = torch.zeros(len_sequence-1, 2, 3, CROP_SIZE, CROP_SIZE, dtype=torch.float, device=device)
-                labels_output_temp = np.zeros([len_sequence-1, 4])
-                labels_output_vec = torch.zeros(len_sequence-1, 4, dtype=torch.float, device=device)
+                labels_output_temp = np.zeros([len_sequence-1, 1, 4])
+                labels_output_vec = torch.zeros(len_sequence-1, 1, 4, dtype=torch.float, device=device)
                 labels_input_vec = labels_sequence[:-1]
                 for i, labels_input in enumerate(labels_input_vec):
                     # get the input values
@@ -372,56 +370,72 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=1):
                     cropped_input1, _ = im_util.get_cropped_input(inputs_sequence[i+1], labels_input, CROP_PAD, CROP_SIZE)
                     inputs_temp[i] = np.concatenate((cropped_input0, cropped_input1)).reshape(2, 3, CROP_SIZE, CROP_SIZE)
                     # fit the output labels to the network output
-                    labels_output_temp[i] = bb_util.to_crop_coordinate_system(labels_sequence[i+1], labels_input, CROP_PAD, CROP_SIZE)
+                    labels_output_temp[i] = bb_util.to_crop_coordinate_system(
+                        labels_sequence[i+1], pastBBoxPadded, CROP_PAD, CROP_SIZE)
+                    #print("previous image position: ", labels_input)
+                    #print("original output label: ", labels_sequence[i+1])
+                    #print("to_crop output label: ", labels_output_temp[i])
+                    #print("reconverted output label: ",
+                    #      bb_util.from_crop_coordinate_system(labels_output_temp[i],
+                    #                                        pastBBoxPadded,
+                    #                                        CROP_PAD,
+                    #                                        CROP_SIZE))
                 # Transfer to the gpu memory only once for each sequence (very slow operation)
-                inputs_vec = torch.Tensor(inputs_temp).to(device)
+                # Actually this seems to cause memory issues, transfer shall be
+                # done once at a time
+                #inputs_vec = torch.Tensor(inputs_temp).to(device)
                 labels_output_vec = torch.Tensor(labels_output_temp).to(device)
-                
+
+ 		
                 # Learn/Test this data sequence
                 for i, _ in enumerate(labels_input_vec):
+                        print("inputs {}/{}".format(i,
+                                                   labels_input_vec.shape[0]-1))
                         # set variables
-                        inputs = inputs_vec[i]
+                        inputs = torch.Tensor(inputs_temp[i]).to(device)
+                        #inputs = inputs_vec[i]
                         labels_output = labels_output_vec[i]
-                             
+                        print("expected output: ", labels_output)
+                        
                         # forward
                         # track history if only in train
                         with torch.set_grad_enabled(phase == 'train'):
-                            outputs, s1, s2 = model(inputs=inputs,batch_size=1, prevLstmState=lstmState)
+                            outputs, s1, s2 = model(inputs=inputs,batch_size=1,
+                                                    prevLstmState=lstmState)
+                            print("outputs: ", outputs)
                             lstmState = [s1[0], s1[1], s2[0], s2[1]]
-                            loss = criterion(outputs, labels_output[i])
-
-                            _, preds = torch.max(outputs, 1)
+                            loss = criterion(outputs, labels_output)
+                            print("loss: ", loss.item())
 
                             # backward + optimize only if in training phase
                             if phase == 'train':
-                                loss.backward()
+                                loss.backward(retain_graph=True)
                                 optimizer.step()
-
                         # statistics
-                        running_loss += loss.item() * inputs.size(0)
-                        running_corrects += torch.sum(preds == labels.data)
+                        running_loss += loss.item()
+                        # remove tensors that are not needed anymore to help
+                        # the memory (useful ??)
+                        del loss, outputs, s1, s2, inputs, labels_output
+            epoch_loss = running_loss / len(inputs_vec)
 
-            epoch_loss = 100#running_loss / len(dataloaders[phase].dataset)
-            epoch_acc = 100#running_corrects.double() / len(dataloaders[phase].dataset)
-
-            print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
+            print('{} Loss: {:.4f}'.format(phase, epoch_loss))
 
             # deep copy the model
-            if phase == 'val' and epoch_acc > best_acc:
-                best_acc = epoch_acc
+            if phase == 'val':# and epoch_acc > best_acc:
+                #best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(model.state_dict())
-            if phase == 'val':
-                val_acc_history.append(epoch_acc)
+            #if phase == 'val':
+               # val_acc_history.append(epoch_acc)
 
         print()
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
-    print('Best val Acc: {:4f}'.format(best_acc))
+    #print('Best val Acc: {:4f}'.format(best_acc))
 
     # load best model weights
     model.load_state_dict(best_model_wts)
-    return model, val_acc_history
+    return model, epoch_loss#, val_acc_history
 
 # Data augmentation and normalization for training
 # Just normalization for validation
@@ -495,7 +509,7 @@ params_to_update = model_ft.parameters()
 
 # Observe that all parameters are being optimized
 #optimizer_ft = optim.SGD(params_to_update, lr=0.001, momentum=0.9)
-optimizer_ft = torch.optim.Adam(params_to_update, lr=0.01)
+optimizer_ft = torch.optim.Adam(params_to_update, lr=0.001)
 
 # Setup the loss fxn
 #criterion = nn.CrossEntropyLoss()

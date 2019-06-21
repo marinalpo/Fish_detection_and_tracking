@@ -443,19 +443,22 @@ def train_model(model, conv, dataloaders, criterion, optimizer, num_epochs=1):
                             outputs, s1, s2 = model(inputs=conv_out,batch_size=1,
                                                     prevLstmState=lstmState)
                             print("outputs: ", outputs/10.0)
-                            lstmState = [s1[0], s1[1], s2[0], s2[1]]
+                            lstmState = [s1[0].detach(), s1[1].detach(),
+                                         s2[0].detach(), s2[1].detach()]
                             loss = criterion(outputs/10.0 , labels_output)
                             print("loss: ", loss.item())
 
                             # backward + optimize only if in training phase
                             if phase == 'train':
-                                loss.backward(retain_graph=True)
+                                #loss.backward(retain_graph=True)
+                                loss.backward()
                                 optimizer.step()
                         # statistics
                         running_loss += loss.item()
                         # remove tensors that are not needed anymore to help
                         # the memory (useful ??)
-                        del loss, outputs, s1, s2, inputs, labels_output, conv_out
+                        #del loss, outputs, s1, s2, inputs, labels_output, conv_out
+                        torch.cuda.empty_cache()
             epoch_loss = running_loss / len(inputs_vec)
 
             print('{} Loss: {:.4f}'.format(phase, epoch_loss))

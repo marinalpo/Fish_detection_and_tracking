@@ -11,7 +11,7 @@ import os.path
 sys.path.append(os.path.abspath(os.path.join(
     os.path.dirname(__file__), os.path.pardir)))
 
-from tracker import network_resnet
+from tracker import network_resnet2
 
 from re3_utils.util import bb_util
 from re3_utils.util import im_util
@@ -36,11 +36,11 @@ class Re3Tracker(object):
         self.prevLstmState = None
         #self.batch_size = tf.placeholder(tf.int32, shape=())
         self.outputs, self.state1, self.state2 = None, None, None
-        self.network = network_resnet.torch_net()
+        self.conv = network_resnet2.resnet_conv_layers()
+        self.network = network_resnet2.torch_net()
         #self.dtype = torch.cuda.FloatTensor
-        self.network.cuda()
-        self.network.eval()
-
+        self.conv.cuda().eval()
+        self.network.cuda().eval()
 ##        ckpt = tf.train.get_checkpoint_state(os.path.join(basedir, '..', LOG_DIR, 'checkpoints'))
 ##        if ckpt is None:
 ##            raise IOError(
@@ -94,7 +94,8 @@ class Re3Tracker(object):
     ##                self.batch_size : 1,
     ##                }
             #rawOutput, s1, s2 = self.sess.run([self.outputs, self.state1, self.state2], feed_dict=feed_dict)
-            rawOutput, s1, s2 = self.network(inputs=inputs, batch_size=batch_size, prevLstmState=lstmState)  
+            conv_out = self.conv(inputs=inputs, batch_size=batch_size)
+            rawOutput, s1, s2 = self.network(inputs=conv_out, batch_size=batch_size, prevLstmState=lstmState)  
             lstmState = [s1[0], s1[1], s2[0], s2[1]]
             if forwardCount == 0:
                 originalFeatures = [s1[0], s1[1], s2[0], s2[1]]
@@ -114,7 +115,8 @@ class Re3Tracker(object):
     ##                    self.batch_size : 1,
     ##                    }
                 #rawOutput, s1, s2 = self.sess.run([self.outputs, self.state1, self.state2], feed_dict=feed_dict)
-                rawOutput, s1, s2 = self.network(inputs=inputs, batch_size=1, prevLstmState=lstmState)
+                conv_out = self.conv(inputs=inputs, batch_size=1)
+                rawOutput, s1, s2 = self.network(inputs=conv_out, batch_size=1, prevLstmState=lstmState)
                 lstmState = [s1[0], s1[1], s2[0], s2[1]]
 
             forwardCount += 1

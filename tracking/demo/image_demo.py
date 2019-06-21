@@ -6,7 +6,7 @@ import os.path
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.abspath(os.path.join(basedir, os.path.pardir)))
-from tracker import re3_resnet_tracker as re3_tracker
+from tracker import re3_resnet_tracker2 as re3_tracker
 #re3_resnet_tracker as
 
 #if not os.path.exists(os.path.join(basedir, 'data')):

@@ -27,9 +27,9 @@ USE_NETWORK_PROB = 0.8
 REAL_MOTION_PROB = 1.0 / 8
 AREA_CUTOFF = 0.25
 
-BATCH_SIZE = 2
-UNROLL_SIZE = 2
-NUM_EPOCHS = 1
+BATCH_SIZE = 1
+UNROLL_SIZE = 1
+NUM_EPOCHS = 100
 DEBUG = False
 
 ##class alovDataset(torch.utils.data.Dataset):
@@ -77,7 +77,6 @@ class alovDataset():
     def __init__(self, batch_size):
         self.batch_size = batch_size
         self.seed = random.seed()
-        self.transform = transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         labels = sorted(glob.glob(os.path.join(basedir, 'alov300', 'alov300++_rectangleAnnotation_full', '*', '*')))
         self.len = len(labels)
         self.image_paths = []
@@ -138,6 +137,26 @@ class alovDataset():
         
     def __len__(self):
         return self.len
+
+
+class testDataset():
+    def __init__(self):
+        labels_path = os.path.join(basedir, 'demo', 'FishTest', 'groundtruth_rect.txt')
+        annot = np.loadtxt(labels_path, delimiter = ' ', dtype = np.float32)
+        image_paths = sorted(glob.glob(os.path.join(basedir, 'demo', 'FishTest', 'img', '*')))
+        self.images = []
+        for i, _ in enumerate(annot):
+            annot[i][2] += annot[i][0]
+            annot[i][3] += annot[i][1]
+            image = cv2.imread(image_paths[i])
+            # Tracker expects RGB, but opencv loads BGR.
+            imageRGB = image[:,:,::-1]
+            self.images.append(imageRGB)
+        self.annot = annot
+    def getbatch(self):
+        return [self.images], [self.annot]
+            
+        
     
 
 # Randomly jitter the box for a bit of noise.
@@ -389,9 +408,13 @@ def train_model(model, conv, dataloaders, criterion, optimizer, num_epochs=1):
                             (int(labels_input[0]), int(labels_input[1])),
                             (int(labels_input[2]), int(labels_input[3])),
                             [0,0,255], 2)
+                        cv2.rectangle(inputs_sequence[i],
+                            (int(100), int(100)),
+                            (int(700), int(700)),
+                            [0,0,255], 2)
                         cv2.rectangle(cropped_input1,
-                            (int(labels_output_temp[i,0][0]), int(labels_output_temp[i,0][1])),
-                            (int(labels_output_temp[i,0][2]), int(labels_output_temp[i,0][3])),
+                            (int(labels_output_temp[i,0][0]*CROP_SIZE), int(labels_output_temp[i,0][1]*CROP_SIZE)),
+                            (int(labels_output_temp[i,0][2]*CROP_SIZE), int(labels_output_temp[i,0][3]*CROP_SIZE)),
                             [0,0,255], 2)
                         cv2.imshow('Image', inputs_sequence[i])
                         cv2.imshow('Crop', cropped_input1)
@@ -486,7 +509,8 @@ print("Initializing Datasets and Dataloaders...")
 ##image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x), data_transforms[x]) for x in ['train', 'val']}
 ### Create training and validation dataloaders
 ##dataloaders_dict = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=BATCH_SIZE, shuffle=True, num_workers=4) for x in ['train', 'val']}
-dataloaders_dict = alovDataset(batch_size=BATCH_SIZE)
+#dataloaders_dict = alovDataset(batch_size=BATCH_SIZE)
+dataloaders_dict = testDataset()
 ##dataloaders_dict = {x: torch.utils.data.DataLoader(dataset=dataset,
 ##                                                  batch_size=BATCH_SIZE,
 ##                                                  shuffle=True,
@@ -502,6 +526,12 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 # Send the model to GPU
 conv = conv.to(device)
 model_ft = model_ft.to(device)
+
+# Load the previously learned features if the checkpoint file exists
+try:
+    self.network.load_state_dict(torch.load(os.path.join(basedir, "checkpoint.pth")), strict=False)
+except:
+    print("No checkpoint could be found. Using untrained LSTMs.")
 
 # Gather the parameters to be optimized/updated in this run. If we are
 #  finetuning we will be updating all parameters. However, if we are
